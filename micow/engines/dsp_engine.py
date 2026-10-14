@@ -13,7 +13,7 @@ class DSPEngine(Engine):
     id = "micow-dsp"
     name = "Micow Beat"
     license = "MIT (mã Micow) – nhạc tạo ra thuộc về bạn"
-    description = ("Có sẵn, chạy trên CPU trong vài giây. Tự soạn hoà âm, trống, bass, hook theo 11 thể loại; "
+    description = ("Có sẵn, chạy trên CPU trong vài giây. Tự soạn hoà âm, trống, bass, hook theo 12 thể loại; "
                    "dùng clip của bạn làm vòng lặp / cắt lát / bộ trống; bài có lời được hát bằng giọng mẫu "
                    "(ngân nguyên âm theo giai điệu) và xuất MIDI kèm lời + LRC.")
     vocals = False
