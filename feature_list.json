@@ -190,6 +190,17 @@
    "status": "done",
    "version": "1.1.0",
    "evidence": "tests/test_core.py TrainPipeline (chọn cỡ theo VRAM, manifest từ thư mục: thể loại từ tên thư mục, lời từ .txt, bỏ tệp không phải nhạc); chạy thật trên CPU: 3 bài → codec + token + Micow-LM tiny trong 27 giây, sinh codec.pt + lm.pt. Chưa chạy trên GPU thật (máy phát triển không có GPU)."
+  },
+  {
+   "id": "feat-019",
+   "name": "Tải Micow từ trang web + bộ cài một lệnh",
+   "description": "scripts/get.sh, scripts/get.ps1 (tải zip HEAD từ GitHub vào ~/.micow/app rồi chạy install); trang web không thấy máy chủ → màn hình 'Tải Micow về máy' tự chọn Windows/macOS/Linux, nút Chép, Tải gói .zip",
+   "dependencies": [
+    "feat-007"
+   ],
+   "status": "done",
+   "version": "1.1.0",
+   "evidence": "get.sh chạy thật trong HOME sạch: tải github.com/vtvcab17-max/Micow/archive/HEAD.zip, cài venv, `micow --version` = 1.1.0, `micow capcut --gen` ra 15,0 giây drop@7s; Playwright: màn hình tải hiện đúng Windows theo UA, bấm macOS đổi đúng, không tràn ngang 390 px, không lỗi JS. get.ps1 chưa chạy trên Windows thật."
   }
  ]
 }

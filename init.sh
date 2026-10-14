@@ -30,8 +30,9 @@ for ref in re.findall(r'(?:src|href)="((?:css|js|icons|fonts)/[^"]+)"', html):
 big = [p for p in (root / "web").rglob("*") if p.is_file() and p.stat().st_size > 25 * 2**20]
 if big:
     sys.exit(f"✗ tệp > 25 MiB trong web/ (Cloudflare từ chối): {big}")
-if open("scripts/install.ps1", "rb").read(3) != b"\xef\xbb\xbf":
-    sys.exit("✗ scripts/install.ps1 phải lưu UTF-8 có BOM (Windows PowerShell 5.1)")
+for ps in ("scripts/install.ps1", "scripts/get.ps1"):
+    if open(ps, "rb").read(3) != b"\xef\xbb\xbf":
+        sys.exit(f"✗ {ps} phải lưu UTF-8 có BOM (Windows PowerShell 5.1)")
 for p in list(root.rglob("*.py")) + list(root.rglob("*.js")) + list(root.rglob("*.md")):
     if ".git" in p.parts or "node_modules" in p.parts:
         continue

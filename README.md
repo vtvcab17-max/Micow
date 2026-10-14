@@ -47,7 +47,18 @@ Nhạc cụ tổng hợp: piano, piano điện, guitar, dàn dây, pad, supersaw
 
 ## Cài đặt
 
-**Windows**: tải mã nguồn (Code → Download ZIP), giải nén, bấm đúp `Cai dat Micow.bat`, sau đó `Mo Micow.bat`
+**Một lệnh** (tải từ GitHub về `~/.micow/app` rồi cài; chạy lại lệnh để cập nhật, nhạc và mô hình của bạn giữ nguyên):
+```powershell
+# Windows – mở PowerShell:
+irm https://raw.githubusercontent.com/vtvcab17-max/Micow/HEAD/scripts/get.ps1 | iex
+```
+```bash
+# macOS / Linux:
+curl -fsSL https://raw.githubusercontent.com/vtvcab17-max/Micow/HEAD/scripts/get.sh | bash
+```
+Mở trang web Micow khi chưa cài cũng thấy màn hình **Tải Micow về máy** với đúng lệnh cho hệ điều hành của bạn.
+
+**Windows (tải tệp)**: tải mã nguồn (Code → Download ZIP), giải nén, bấm đúp `Cai dat Micow.bat`, sau đó `Mo Micow.bat`
 (hoặc biểu tượng Micow trên Desktop). Cần Python 3.10+ (bộ cài tự đề nghị cài qua winget nếu thiếu).
 
 **macOS / Linux**:

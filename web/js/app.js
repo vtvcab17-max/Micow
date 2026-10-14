@@ -72,6 +72,7 @@ const App = {
     for (const b of $$("#nav button, #tabs button")) b.onclick = () => this.go(b.dataset.page);
     addEventListener("hashchange", () => this.go(location.hash.slice(1) || "song", false));
     $("#conn").onclick = () => this.showOffline(true);
+    this.setupDownload();
     $("#srvRetry").onclick = () => { const u = $("#srvUrl").value.trim(); if (u) { API.base = u; store("server", u); } this.connect(); };
     for (const sec of $$(".page[data-mode]")) this.setupStudio(sec);
     this.setupLibrary();
@@ -100,6 +101,21 @@ const App = {
       this.showOffline(true);
       for (const sec of $$(".page[data-mode]")) this.renderGenres(sec);
     }
+  },
+  setupDownload() {
+    const pick = (os) => {
+      for (const b of $$("#dlOs button")) b.setAttribute("aria-pressed", String(b.dataset.os === os));
+      for (const d of $$(".dl-os")) d.hidden = d.dataset.os !== os;
+      $("#dlZip").hidden = os !== "win";
+    };
+    const ua = navigator.userAgent;
+    pick(/Windows/i.test(ua) ? "win" : /Mac OS X|Macintosh/i.test(ua) && !/iPhone|iPad/i.test(ua) ? "mac" : /Linux/i.test(ua) && !/Android/i.test(ua) ? "linux" : "win");
+    for (const b of $$("#dlOs button")) b.onclick = () => pick(b.dataset.os);
+    for (const b of $$("#offline .copy")) b.onclick = async () => {
+      const txt = b.previousElementSibling.textContent.trim();
+      try { await navigator.clipboard.writeText(txt); b.textContent = "Đã chép"; } catch { b.textContent = "Chọn và chép"; }
+      setTimeout(() => { b.textContent = "Chép"; }, 1800);
+    };
   },
   showOffline(force) { if (!this.online || force === true && !this.online) { $("#srvUrl").value = API.base; $("#offline").hidden = false; } else if (force) this.go("models"); },
 

@@ -166,15 +166,35 @@ micow train lm       --tokens data/tokens --out ~/.micow/models/micow-lm/cua-toi
 </nav>
 
 <div class="overlay" id="offline" hidden>
-  <div class="dialog" role="dialog" aria-labelledby="offT">
-    <h2 id="offT">Chưa thấy Micow trên máy</h2>
-    <p>Micow là mô hình chạy trên máy của bạn – trang web này chỉ là giao diện. Hãy cài và chạy Micow, rồi bấm Thử lại.</p>
-    <pre class="cmd"># Windows: mở thư mục Micow, bấm đúp  "Cai dat Micow.bat"  rồi  "Mo Micow.bat"
-# macOS / Linux:
-bash scripts/install.sh
-micow serve --open</pre>
-    <div class="field"><label for="srvUrl">Địa chỉ máy chủ Micow</label><input type="url" id="srvUrl" value="http://127.0.0.1:5690"></div>
-    <div class="acts"><a class="badge n" href="https://github.com/vtvcab17-max/Micow" target="_blank" rel="noopener">Mã nguồn & bộ cài</a><span style="flex:1"></span><button class="primary" id="srvRetry">Thử lại</button></div>
+  <div class="dialog dl" role="dialog" aria-labelledby="offT">
+    <h2 id="offT">Tải Micow về máy</h2>
+    <p>Micow chạy trên máy của bạn, miễn phí, không giới hạn lượt tải nhạc. Trang web này chỉ là giao diện:
+      cài Micow một lần, mở Micow, rồi quay lại đây bấm <b>Thử lại</b>.</p>
+    <div class="seg" id="dlOs" role="tablist" aria-label="Hệ điều hành">
+      <button data-os="win" aria-pressed="true">Windows</button><button data-os="mac" aria-pressed="false">macOS</button><button data-os="linux" aria-pressed="false">Linux</button>
+    </div>
+    <div class="dl-os" data-os="win">
+      <p><b>Cách 1 · một lệnh.</b> Mở PowerShell, dán lệnh này, Enter (tự cài Python nếu thiếu, tạo biểu tượng Micow trên Desktop):</p>
+      <div class="cmdrow"><pre class="cmd">irm https://raw.githubusercontent.com/vtvcab17-max/Micow/HEAD/scripts/get.ps1 | iex</pre><button class="copy" type="button">Chép</button></div>
+      <p><b>Cách 2 · tải tệp.</b> Tải gói .zip, giải nén, bấm đúp <code>Cai dat Micow.bat</code> rồi <code>Mo Micow.bat</code>.</p>
+    </div>
+    <div class="dl-os" data-os="mac" hidden>
+      <p>Mở Terminal, dán lệnh này (cần Python 3.10+: <code>brew install python@3.12</code>):</p>
+      <div class="cmdrow"><pre class="cmd">curl -fsSL https://raw.githubusercontent.com/vtvcab17-max/Micow/HEAD/scripts/get.sh | bash</pre><button class="copy" type="button">Chép</button></div>
+      <p>Xong thì chạy <code>micow serve --open</code>. Máy chip M dùng GPU Apple cho ACE-Step / Micow-LM.</p>
+    </div>
+    <div class="dl-os" data-os="linux" hidden>
+      <p>Dán lệnh này vào terminal (Ubuntu: <code>sudo apt install python3 python3-venv curl</code> trước):</p>
+      <div class="cmdrow"><pre class="cmd">curl -fsSL https://raw.githubusercontent.com/vtvcab17-max/Micow/HEAD/scripts/get.sh | bash</pre><button class="copy" type="button">Chép</button></div>
+      <p>Xong thì chạy <code>micow serve --open</code>. Có card NVIDIA: thêm <code>| bash -s -- --with-torch</code> để huấn luyện bằng GPU.</p>
+    </div>
+    <details class="dl-more"><summary>Đã cài rồi? Đổi địa chỉ máy chủ</summary>
+      <div class="field"><label for="srvUrl">Địa chỉ máy chủ Micow</label><input type="url" id="srvUrl" value="http://127.0.0.1:5690"></div>
+    </details>
+    <div class="acts"><a class="badge n" href="https://github.com/vtvcab17-max/Micow" target="_blank" rel="noopener">Mã nguồn (MIT)</a>
+      <span style="flex:1"></span>
+      <a class="btn" id="dlZip" href="https://github.com/vtvcab17-max/Micow/archive/HEAD.zip" download>Tải gói .zip</a>
+      <button class="primary" id="srvRetry">Thử lại</button></div>
   </div>
 </div>
 <input type="file" id="fileIn" accept="audio/*,.mp3,.wav,.m4a,.flac,.ogg,.aac" multiple hidden>

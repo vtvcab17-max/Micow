@@ -21,6 +21,7 @@
 - [x] So sánh Suno v6 trung thực (docs/SO_SANH_SUNO_V6.md) – không có điểm tự chấm.
 
 - [x] `micow train all --music <thư mục>`: huấn luyện Micow-LM trọn gói trên laptop GPU (đã thử trên CPU với tiny; chưa chạy GPU thật).
+- [x] Tải Micow từ trang web: màn hình "Tải Micow về máy" + bộ cài một lệnh `get.sh` / `get.ps1` (get.ps1 chưa thử trên Windows thật).
 
 ## Tiếp theo
 0. Chạy `micow train all` trên laptop GPU của người dùng (phiên Claude Code chạy trên laptop: ứng dụng Desktop hoặc `claude remote-control`).
