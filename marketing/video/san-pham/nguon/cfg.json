@@ -1,0 +1,220 @@
+{
+ "bravin": {
+  "name": "Bravin",
+  "ac": "#8b7cff",
+  "ac2": "#b3a9ff",
+  "url": "bravin.vtvcab17.workers.dev",
+  "style": "v-pop tươi sáng, pluck, synth",
+  "dropScene": 1,
+  "scenes": [
+   {
+    "k": "Dựng video",
+    "h": "Máy yếu vẫn <em>dựng video</em> được?"
+   },
+   {
+    "k": "Mở là dùng",
+    "h": "Mở trình duyệt là dựng",
+    "art": "chips",
+    "chips": [
+     "Web",
+     "Android",
+     "Windows"
+    ],
+    "drop": true
+   },
+   {
+    "k": "Như phần mềm chuyên nghiệp",
+    "h": "Timeline nhiều lớp",
+    "art": "timeline",
+    "chips": [
+     "Keyframe",
+     "Mask",
+     "Chỉnh màu kiểu node"
+    ]
+   },
+   {
+    "k": "Hiệu ứng & âm thanh",
+    "h": "Hơn 40 hiệu ứng",
+    "art": "chips",
+    "chips": [
+     "Âm thanh chuẩn",
+     "Phụ đề tự động"
+    ]
+   },
+   {
+    "k": "Trợ lý AI",
+    "h": "AI sửa timeline giúp bạn",
+    "art": "chat",
+    "me": "Cắt bớt 2 giây đầu, thêm phụ đề nha",
+    "ai": "Xong rồi ✓ Xuất MP4 luôn nhé?"
+   },
+   {
+    "end": true
+   }
+  ]
+ },
+ "antifact": {
+  "name": "Antifact",
+  "ac": "#ff4f99",
+  "ac2": "#2fd0ee",
+  "url": "antiface.vtvcab17.workers.dev",
+  "style": "lo-fi nhẹ nhàng, piano điện",
+  "dropScene": 2,
+  "scenes": [
+   {
+    "k": "Thiết kế",
+    "h": "Không có <em>Photoshop</em>?"
+   },
+   {
+    "k": "Mở là dùng",
+    "h": "Thiết kế ngay trên trình duyệt",
+    "art": "chips",
+    "chips": [
+     "Không cần cài",
+     "Không cần tài khoản"
+    ]
+   },
+   {
+    "k": "Layer · cọ · xoá vật thể",
+    "h": "Mỗi thứ một layer",
+    "art": "layers",
+    "chips": [
+     "Xoá vật thừa",
+     "Chữ tiếng Việt chuẩn dấu"
+    ],
+    "drop": true
+   },
+   {
+    "k": "Trợ lý AI",
+    "h": "Gõ là AI làm giúp",
+    "art": "chat",
+    "me": "Làm tiêu đề to hơn, đổi sang màu hồng",
+    "ai": "Đã đổi ✓"
+   },
+   {
+    "k": "Xuất",
+    "h": "Xuất ảnh hoặc gửi sang Bravin",
+    "art": "chips",
+    "chips": [
+     "PNG",
+     "JPG",
+     "WebP",
+     "→ Bravin, mỗi layer một track"
+    ]
+   },
+   {
+    "end": true
+   }
+  ]
+ },
+ "micron": {
+  "name": "Micron",
+  "ac": "#8b6bff",
+  "ac2": "#2fd4e8",
+  "url": "micron.vtvcab17.workers.dev",
+  "style": "house hiện đại, pad, pluck",
+  "dropScene": 1,
+  "scenes": [
+   {
+    "k": "Canvas AI",
+    "h": "AI rời rạc, <em>copy qua copy lại</em>?"
+   },
+   {
+    "k": "Một canvas",
+    "h": "Đặt ô AI, nối dây lại",
+    "art": "nodes",
+    "nodes": [
+     "💡 Ý tưởng",
+     "✍️ Viết lời",
+     "🎵 Bài hát"
+    ],
+    "drop": true
+   },
+   {
+    "k": "▶ Chạy tất cả",
+    "h": "Một nút, chạy hết một lượt",
+    "art": "nodes",
+    "nodes": [
+     "💡 Ý tưởng",
+     "✍️ Viết lời",
+     "🎵 Bài hát"
+    ],
+    "run": true
+   },
+   {
+    "k": "AI của bạn",
+    "h": "Bạn tự mang AI",
+    "art": "chips",
+    "chips": [
+     "Dán API key",
+     "AI chạy trên máy"
+    ]
+   },
+   {
+    "k": "Chợ plugin",
+    "h": "Plugin cho Bravin",
+    "art": "chips",
+    "chips": [
+     "Motion Tracking miễn phí"
+    ]
+   },
+   {
+    "end": true
+   }
+  ]
+ },
+ "micow": {
+  "name": "Micow",
+  "ac": "#7b6cf6",
+  "ac2": "#a99ff9",
+  "url": "bravinall.vtvcab17.workers.dev/micow",
+  "style": "vinahouse sôi động, sáo",
+  "dropScene": 2,
+  "scenes": [
+   {
+    "k": "Làm nhạc",
+    "h": "Kéo nhạc mãi <em>cho khớp</em>?"
+   },
+   {
+    "k": "Nhạc CapCut",
+    "h": "Chọn 15 giây, drop ở giây 7",
+    "art": "wave",
+    "chips": [
+     "15 giây",
+     "drop @ 7s"
+    ]
+   },
+   {
+    "k": "drop",
+    "h": "Drop rơi <em>đúng giây 7</em>",
+    "drop": true
+   },
+   {
+    "k": "Beat & bài hát",
+    "h": "12 thể loại, theo dấu tiếng Việt",
+    "art": "chips",
+    "chips": [
+     "Vinahouse",
+     "Bolero",
+     "Drill",
+     "V-Pop",
+     "Lo-fi",
+     "EDM"
+    ]
+   },
+   {
+    "k": "Chạy trên máy",
+    "h": "Không cần mạng, miễn phí",
+    "art": "chips",
+    "chips": [
+     "Offline",
+     "Mã nguồn mở",
+     "Giọng hát chưa như người thật"
+    ]
+   },
+   {
+    "end": true
+   }
+  ]
+ }
+}

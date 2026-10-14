@@ -1,0 +1,91 @@
+{
+ "dur": 29.388,
+ "segs": [
+  {
+   "start": 0.0,
+   "sent": [
+    {
+     "start": 0.0,
+     "end": 3.243,
+     "text": "Dựng video xong mà ngồi kéo nhạc mãi cho khớp chuyển cảnh?"
+    }
+   ],
+   "end": 3.243
+  },
+  {
+   "start": 3.243,
+   "sent": [
+    {
+     "start": 3.243,
+     "end": 4.644,
+     "text": "Mình dùng Micow."
+    },
+    {
+     "start": 4.644,
+     "end": 9.061,
+     "text": "Chọn video dài mười lăm giây, muốn drop rơi ở giây bảy, bấm tạo."
+    }
+   ],
+   "end": 9.061
+  },
+  {
+   "start": 9.061,
+   "sent": [
+    {
+     "start": 9.061,
+     "end": 11.173,
+     "text": "Drop rơi đúng giây bảy luôn."
+    }
+   ],
+   "end": 11.173
+  },
+  {
+   "start": 11.173,
+   "sent": [
+    {
+     "start": 11.173,
+     "end": 14.835,
+     "text": "Có mười hai thể loại, có cả Vinahouse với Bolero."
+    },
+    {
+     "start": 14.835,
+     "end": 18.457,
+     "text": "Viết lời vào thì nó làm cả bài, giai điệu theo dấu tiếng Việt."
+    }
+   ],
+   "end": 18.457
+  },
+  {
+   "start": 18.457,
+   "sent": [
+    {
+     "start": 18.457,
+     "end": 21.694,
+     "text": "Chạy ngay trên máy tính, không cần mạng, miễn phí."
+    },
+    {
+     "start": 21.694,
+     "end": 25.673,
+     "text": "Giọng hát thì chưa được như người thật đâu, nhưng làm nhạc nền là ổn."
+    }
+   ],
+   "end": 25.673
+  },
+  {
+   "start": 25.673,
+   "sent": [
+    {
+     "start": 25.673,
+     "end": 28.067,
+     "text": "Micow, sản phẩm của Beta."
+    },
+    {
+     "start": 28.067,
+     "end": 29.145,
+     "text": "Link ở bên dưới nha."
+    }
+   ],
+   "end": 29.145
+  }
+ ]
+}

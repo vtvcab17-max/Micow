@@ -1,0 +1,81 @@
+{
+ "dur": 25.234,
+ "segs": [
+  {
+   "start": 0.0,
+   "sent": [
+    {
+     "start": 0.0,
+     "end": 3.133,
+     "text": "Dựng video mà máy yếu, không muốn cài phần mềm nặng?"
+    }
+   ],
+   "end": 3.133
+  },
+  {
+   "start": 3.133,
+   "sent": [
+    {
+     "start": 3.133,
+     "end": 4.621,
+     "text": "Mình dùng Bravin."
+    },
+    {
+     "start": 4.621,
+     "end": 8.448,
+     "text": "Mở trình duyệt là dựng được, có cả bản Android với Windows."
+    }
+   ],
+   "end": 8.448
+  },
+  {
+   "start": 8.448,
+   "sent": [
+    {
+     "start": 8.448,
+     "end": 13.921,
+     "text": "Timeline nhiều lớp, keyframe, mask, chỉnh màu kiểu node, giống phần mềm chuyên nghiệp."
+    }
+   ],
+   "end": 13.921
+  },
+  {
+   "start": 13.921,
+   "sent": [
+    {
+     "start": 13.921,
+     "end": 17.26,
+     "text": "Hơn bốn mươi hiệu ứng, âm thanh chuẩn, phụ đề tự động."
+    }
+   ],
+   "end": 17.26
+  },
+  {
+   "start": 17.26,
+   "sent": [
+    {
+     "start": 17.26,
+     "end": 21.591,
+     "text": "Có trợ lý AI sửa timeline giúp mình, xong xuất MP4 là đăng."
+    }
+   ],
+   "end": 21.591
+  },
+  {
+   "start": 21.591,
+   "sent": [
+    {
+     "start": 21.591,
+     "end": 23.9,
+     "text": "Bravin, sản phẩm của Beta."
+    },
+    {
+     "start": 23.9,
+     "end": 24.998,
+     "text": "Link ở bên dưới nha."
+    }
+   ],
+   "end": 24.998
+  }
+ ]
+}

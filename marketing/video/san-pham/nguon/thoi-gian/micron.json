@@ -1,0 +1,86 @@
+{
+ "dur": 28.526,
+ "segs": [
+  {
+   "start": 0.0,
+   "sent": [
+    {
+     "start": 0.0,
+     "end": 4.109,
+     "text": "Dùng mấy cái AI rời rạc, copy qua copy lại có mệt không?"
+    }
+   ],
+   "end": 4.109
+  },
+  {
+   "start": 4.109,
+   "sent": [
+    {
+     "start": 4.109,
+     "end": 6.229,
+     "text": "Micron là một cái canvas."
+    },
+    {
+     "start": 6.229,
+     "end": 9.465,
+     "text": "Mình đặt từng ô AI lên rồi nối dây lại với nhau."
+    }
+   ],
+   "end": 9.465
+  },
+  {
+   "start": 9.465,
+   "sent": [
+    {
+     "start": 9.465,
+     "end": 13.847,
+     "text": "Ví dụ ô ý tưởng, nối qua ô viết lời, rồi ô làm bài hát."
+    },
+    {
+     "start": 13.847,
+     "end": 16.41,
+     "text": "Bấm chạy tất cả là nó chạy hết một lượt."
+    }
+   ],
+   "end": 16.41
+  },
+  {
+   "start": 16.41,
+   "sent": [
+    {
+     "start": 16.41,
+     "end": 21.231,
+     "text": "AI thì bạn tự mang, dán API key hoặc dùng AI chạy trên máy."
+    }
+   ],
+   "end": 21.231
+  },
+  {
+   "start": 21.231,
+   "sent": [
+    {
+     "start": 21.231,
+     "end": 25.024,
+     "text": "Có chợ plugin cho Bravin nữa, Motion Tracking miễn phí."
+    }
+   ],
+   "end": 25.024
+  },
+  {
+   "start": 25.024,
+   "sent": [
+    {
+     "start": 25.024,
+     "end": 25.839,
+     "text": "Micron, sản phẩm của Beta."
+    },
+    {
+     "start": 25.839,
+     "end": 28.235,
+     "text": "Link ở bên dưới nha."
+    }
+   ],
+   "end": 28.235
+  }
+ ]
+}

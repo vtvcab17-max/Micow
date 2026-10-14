@@ -1,0 +1,81 @@
+{
+ "dur": 27.324,
+ "segs": [
+  {
+   "start": 0.0,
+   "sent": [
+    {
+     "start": 0.0,
+     "end": 3.641,
+     "text": "Cần làm cái ảnh bìa, cái poster mà máy không có Photoshop?"
+    }
+   ],
+   "end": 3.641
+  },
+  {
+   "start": 3.641,
+   "sent": [
+    {
+     "start": 3.641,
+     "end": 5.089,
+     "text": "Thử Antifact nè."
+    },
+    {
+     "start": 5.089,
+     "end": 10.241,
+     "text": "Mở trình duyệt là dùng, không cần cài, không cần tài khoản."
+    }
+   ],
+   "end": 10.241
+  },
+  {
+   "start": 10.241,
+   "sent": [
+    {
+     "start": 10.241,
+     "end": 13.947,
+     "text": "Có layer, có cọ, khoanh vùng là xoá được vật thừa, chữ tiếng Việt chuẩn từng dấu."
+    }
+   ],
+   "end": 13.947
+  },
+  {
+   "start": 13.947,
+   "sent": [
+    {
+     "start": 13.947,
+     "end": 16.992,
+     "text": "Lười thao tác thì gõ cho trợ lý AI làm giúp."
+    }
+   ],
+   "end": 16.992
+  },
+  {
+   "start": 16.992,
+   "sent": [
+    {
+     "start": 16.992,
+     "end": 23.581,
+     "text": "Xong xuất PNG, JPG, hoặc gửi thẳng sang Bravin, mỗi layer một track để làm video."
+    }
+   ],
+   "end": 23.581
+  },
+  {
+   "start": 23.581,
+   "sent": [
+    {
+     "start": 23.581,
+     "end": 25.976,
+     "text": "Antifact, sản phẩm của Beta."
+    },
+    {
+     "start": 25.976,
+     "end": 27.062,
+     "text": "Link ở bên dưới nha."
+    }
+   ],
+   "end": 27.062
+  }
+ ]
+}
