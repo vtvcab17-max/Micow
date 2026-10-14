@@ -1,0 +1,5 @@
+VIDEO: micow-vi-9x16.mp4
+
+BÀI ĐĂNG:
+Tụi mình để máy tự làm nhạc nền cho video, chọn drop rơi đúng giây 7. Nó làm đúng. Không mạng, không tốn tiền, mã nguồn mở. Tên là Micow, sản phẩm mới của Beta.
+bravinall.vtvcab17.workers.dev/micow

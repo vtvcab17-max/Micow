@@ -1,0 +1,8 @@
+GÓI ĐĂNG BÀI TUẦN 1 - KÊNH BETA
+
+Mỗi thư mục là một nền tảng: video + CHU-THICH.txt (tiêu đề, chú thích, bình luận ghim).
+0-anh-kenh: ảnh đại diện và ảnh bìa (tải lên trước khi đăng bài).
+
+Thứ tự: 0 → 1 YouTube → 2 TikTok → 3 Facebook → 4 Instagram → 5 Threads → 6 X.
+Nhớ bật nhãn nội dung AI nếu nền tảng hỏi (nhạc do Micow tạo).
+Hướng dẫn đầy đủ: marketing/kenh/HUONG_DAN_TAO_KENH.md trong repo Micow (nhánh marketing).
