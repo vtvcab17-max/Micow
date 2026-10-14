@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "micow"
+version = "1.0.0"
+description = "Micow – mô hình làm nhạc chạy trên máy (hệ sinh thái Bravinall): tạo beat và bài hát từ lời, phong cách, đoạn nhạc mẫu"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Phạm Việt Hà" }]
+dependencies = ["numpy>=1.24", "scipy>=1.10"]
+
+[project.optional-dependencies]
+train = ["torch>=2.1"]
+
+[project.scripts]
+micow = "micow.cli:main"
+
+[tool.setuptools]
+packages = ["micow", "micow.dsp", "micow.engines", "micow.model"]

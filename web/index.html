@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="micow-version" content="1.0.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Micow</title>
+<meta name="description" content="Micow – mô hình làm nhạc chạy trên máy của bạn: tạo beat và bài hát hoàn chỉnh từ lời, phong cách và đoạn nhạc mẫu. Hệ sinh thái Bravinall.">
+<meta name="theme-color" content="#131417">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="side" aria-label="Điều hướng">
+    <div class="brand"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="var(--accent)"><rect x="12" y="14" width="12" height="72" rx="6"/><rect x="28" y="32" width="12" height="54" rx="6"/><rect x="44" y="50" width="12" height="36" rx="6"/><rect x="60" y="32" width="12" height="54" rx="6"/><rect x="76" y="14" width="12" height="72" rx="6"/></g><rect x="40.5" y="8" width="3" height="84" rx="1.5" fill="var(--gold)"/><path d="M36 6H48L42 13Z" fill="var(--gold)"/></svg><span><b>Mi</b>cow<small>Làm nhạc trên máy bạn</small></span></div>
+    <nav class="nav" id="nav">
+      <button data-page="song" aria-current="page"><i data-ico="mic"></i>Tạo bài hát</button>
+      <button data-page="beat"><i data-ico="drum"></i>Tạo beat</button>
+      <button data-page="library"><i data-ico="note"></i>Thư viện</button>
+      <button data-page="models"><i data-ico="chip"></i>Mô hình</button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="conn" id="conn" role="button" tabindex="0" title="Kết nối máy chủ Micow"><span class="dot"></span><span><span id="connTxt">Đang kết nối…</span><small id="connSub"></small></span></div>
+    <div class="eco">Thuộc hệ sinh thái <b>Bravinall</b><br><a href="https://bravin.vtvcab17.workers.dev/" target="_blank" rel="noopener">Bravin</a> · <a href="https://antiface.vtvcab17.workers.dev/" target="_blank" rel="noopener">Antifact</a> · <a href="https://micron.vtvcab17.workers.dev/" target="_blank" rel="noopener">Micron</a></div>
+  </aside>
+
+  <main class="main" id="main">
+    <!-- ================= TẠO BÀI HÁT ================= -->
+    <section class="page" id="page-song" data-mode="song">
+      <header class="hbig"><h1>Tạo bài hát</h1><p>Viết lời, tả phong cách, thả vài đoạn nhạc mẫu – Micow lập cấu trúc bài, soạn hoà âm, giai điệu theo thanh điệu tiếng Việt và dựng thành bài hoàn chỉnh ngay trên máy bạn.</p></header>
+      <div class="grid2">
+        <div class="col">
+          <div class="card">
+            <div class="ch"><span>Phong cách</span><button class="ghost" data-act="suggest"><i data-ico="spark"></i>Gợi ý</button></div>
+            <textarea class="style" rows="2" placeholder="Ví dụ: ballad buồn, piano, dàn dây, giọng nữ, 72 bpm, La thứ"></textarea>
+            <div class="gh">Thể loại</div>
+            <div class="chips scroll" data-chips="genre"></div>
+            <div class="gh">Tâm trạng & nhạc cụ</div>
+            <div class="chips" data-chips="words"></div>
+            <details class="adv"><summary>Tuỳ chỉnh</summary><div class="body" data-adv></div></details>
+          </div>
+          <div class="card">
+            <div class="ch"><span>Lời bài hát</span><span class="sub" data-lyrinfo></span></div>
+            <div class="tagbar" data-tagbar></div>
+            <textarea class="lyr" data-lyrics placeholder="[Verse 1]&#10;Chiều nay phố vắng mưa rơi trên vai&#10;Em đi qua đây nghe tim nhói đau&#10;&#10;[Chorus]&#10;Thôi đừng khóc nữa em ơi&#10;Ngày mai nắng sẽ lên thôi"></textarea>
+            <div class="foot"><span>Mỗi dòng một câu hát · thẻ [Điệp khúc] / [Chorus] để chia đoạn · dòng lặp lại sẽ hát cùng giai điệu</span><button class="ghost" data-act="sample">Lời mẫu</button></div>
+          </div>
+          <div class="card" data-clips-card></div>
+        </div>
+        <div class="col sticky" data-side></div>
+      </div>
+    </section>
+
+    <!-- ================= TẠO BEAT ================= -->
+    <section class="page" id="page-beat" data-mode="beat" hidden>
+      <header class="hbig"><h1>Tạo beat</h1><p>Chọn thể loại hoặc thả đoạn nhạc bạn thích – Micow học tempo, giọng, năng lượng, rồi dựng beat đủ intro, điệp khúc, drop và kết. Clip có thể thành vòng lặp, lát cắt hoặc bộ trống.</p></header>
+      <div class="grid2">
+        <div class="col">
+          <div class="card">
+            <div class="ch"><span>Thể loại</span><span class="sub">Không chọn: Micow đoán theo clip</span></div>
+            <div class="gtiles" data-gtiles></div>
+          </div>
+          <div class="card">
+            <div class="ch"><span>Mô tả thêm</span><button class="ghost" data-act="suggest"><i data-ico="spark"></i>Gợi ý</button></div>
+            <textarea class="style" rows="2" placeholder="Ví dụ: tối, 808 nặng, hi-hat cuộn, chuông, 145 bpm"></textarea>
+            <div class="chips" data-chips="words"></div>
+            <div class="fields">
+              <div class="field"><label>Năng lượng <span class="rv" data-rv="energy">tự động</span></label><input type="range" min="0" max="100" value="0" data-energy></div>
+              <div class="field"><label>Thời lượng <span class="rv" data-rv="dur">90 giây</span></label><input type="range" min="20" max="300" step="10" value="90" data-dur></div>
+            </div>
+            <details class="adv"><summary>Tuỳ chỉnh</summary><div class="body" data-adv></div></details>
+          </div>
+          <div class="card" data-clips-card></div>
+        </div>
+        <div class="col sticky" data-side></div>
+      </div>
+    </section>
+
+    <!-- ================= THƯ VIỆN ================= -->
+    <section class="page" id="page-library" hidden>
+      <header class="hbig"><h1>Thư viện</h1><p>Mọi bài đã tạo nằm trên máy bạn (thư mục ~/.micow/library). Tải WAV, MP3, stem, MIDI kèm lời, hoặc .lrc để làm video lời bài hát trong Bravin.</p></header>
+      <div class="lib-tools">
+        <div class="seg" id="libFilter"><button aria-pressed="true" data-f="all">Tất cả</button><button aria-pressed="false" data-f="song">Bài hát</button><button aria-pressed="false" data-f="beat">Beat</button></div>
+        <input type="text" id="libSearch" placeholder="Tìm theo tên, thể loại…">
+        <button class="ghost" id="libRefresh"><i data-ico="refresh"></i>Làm mới</button>
+      </div>
+      <div class="tracks" id="libList"></div>
+    </section>
+
+    <!-- ================= MÔ HÌNH ================= -->
+    <section class="page" id="page-models" hidden>
+      <header class="hbig"><h1>Mô hình</h1><p>Micow chạy hoàn toàn trên máy bạn. Micow Beat có sẵn; cài thêm ACE-Step 1.5 để có giọng hát thật, hoặc huấn luyện Micow-LM của riêng bạn.</p></header>
+      <div class="card"><div class="ch"><span>Máy của bạn</span><span class="sub" id="sysRec"></span></div><div class="sys" id="sysInfo"></div></div>
+      <div class="col" id="engList"></div>
+      <div class="card">
+        <div class="ch"><span>Huấn luyện Micow-LM</span><span class="sub">kiến trúc suy ngược từ Suno</span></div>
+        <p class="note">Codec RVQ biến âm thanh thành token → transformer tự hồi quy sinh token theo phong cách, lời (byte UTF-8) và clip tham chiếu. Chạy các lệnh sau trong thư mục cài Micow (GPU NVIDIA khuyến nghị; chỉ dùng nhạc bạn có quyền):</p>
+        <pre class="cmd">micow data synth --out data --n 200            # dữ liệu khởi động bằng Micow Beat
+micow train codec    --data data/manifest.jsonl --out ~/.micow/models/micow-lm/cua-toi/codec.pt
+micow train tokenize --data data/manifest.jsonl --codec ~/.micow/models/micow-lm/cua-toi/codec.pt --out data/tokens
+micow train lm       --tokens data/tokens --out ~/.micow/models/micow-lm/cua-toi/lm.pt --preset small</pre>
+        <p class="note">Xem <b>docs/HUAN_LUYEN.md</b> để biết cách chuẩn bị dữ liệu thật (manifest JSONL + LRC).</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer class="player" id="player" hidden>
+  <button class="round big play" id="pPlay" aria-label="Phát / dừng"><i data-ico="play"></i></button>
+  <div class="pt"><b id="pTitle">–</b><small id="pMeta"></small></div>
+  <canvas id="pWave" aria-label="Sóng âm – bấm để tua"></canvas>
+  <span class="ptime" id="pTime"><b>0:00</b> / 0:00</span>
+  <button class="icon ghost" id="pMore" aria-label="Tải về"><i data-ico="download"></i></button>
+  <audio id="pAudio" preload="auto"></audio>
+</footer>
+
+<nav class="tabs" id="tabs" aria-label="Điều hướng">
+  <button data-page="song" aria-current="page"><i data-ico="mic"></i>Bài hát</button>
+  <button data-page="beat"><i data-ico="drum"></i>Beat</button>
+  <button data-page="library"><i data-ico="note"></i>Thư viện</button>
+  <button data-page="models"><i data-ico="chip"></i>Mô hình</button>
+</nav>
+
+<div class="overlay" id="offline" hidden>
+  <div class="dialog" role="dialog" aria-labelledby="offT">
+    <h2 id="offT">Chưa thấy Micow trên máy</h2>
+    <p>Micow là mô hình chạy trên máy của bạn – trang web này chỉ là giao diện. Hãy cài và chạy Micow, rồi bấm Thử lại.</p>
+    <pre class="cmd"># Windows: mở thư mục Micow, bấm đúp  "Cai dat Micow.bat"  rồi  "Mo Micow.bat"
+# macOS / Linux:
+bash scripts/install.sh
+micow serve --open</pre>
+    <div class="field"><label for="srvUrl">Địa chỉ máy chủ Micow</label><input type="url" id="srvUrl" value="http://127.0.0.1:5690"></div>
+    <div class="acts"><a class="badge n" href="https://github.com/vtvcab17-max/Micow" target="_blank" rel="noopener">Mã nguồn & bộ cài</a><span style="flex:1"></span><button class="primary" id="srvRetry">Thử lại</button></div>
+  </div>
+</div>
+<input type="file" id="fileIn" accept="audio/*,.mp3,.wav,.m4a,.flac,.ogg,.aac" multiple hidden>
+<div class="toast" id="toast" hidden></div>
+
+<script src="js/ui.js"></script>
+<script src="js/api.js"></script>
+<script src="js/player.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
