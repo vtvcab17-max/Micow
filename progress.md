@@ -2,7 +2,7 @@
 
 ## Current State
 **Last Updated:** 2026-10-14
-**Phiên bản:** 1.1.0 (nhánh phát triển). Chưa deploy bản web (wrangler.jsonc trỏ `web/`).
+**Phiên bản:** 1.1.0 (nhánh phát triển). Bản web đã lên Cloudflare: https://micow.vtvcab17.workers.dev (Worker `micow`, 1.1.0).
 
 ## Đã xong
 - [x] Suy ngược Suno → kiến trúc 3 tầng (planner → engine → hậu kỳ), tài liệu trong `docs/`.
@@ -28,7 +28,7 @@
 1. Người dùng thả nhạc thật vào trang Nhạc CapCut, bấm "Đúng hook" trên các bài đúng/sai → `micow train ear` để Ear học nhạc thật.
 2. Người dùng thử ACE-Step 1.5 trên máy có GPU (feat-005) – gửi `~/.micow/logs/acestep.log` nếu lỗi.
 3. Thử bộ cài Windows thật (feat-008).
-4. Trang Micow trên website Bravinall (feat-009), nút gửi sang Bravin (feat-010).
+4. Trang Micow trên website Bravinall (feat-009) – đã giao cho phiên Bravinall (session_01Dw5tD69VGTwKaeBpM3Nqo4), nút gửi sang Bravin (feat-010).
 5. Huấn luyện Micow-LM trên dữ liệu có quyền (docs/HUAN_LUYEN.md).
 
 ## Rủi ro
