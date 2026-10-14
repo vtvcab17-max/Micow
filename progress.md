@@ -20,7 +20,10 @@
 - [x] Thể loại Drill riêng (808 trượt, hi-hat 3-3-2, snare trễ), Vinahouse ghi rõ trong README/giao diện.
 - [x] So sánh Suno v6 trung thực (docs/SO_SANH_SUNO_V6.md) – không có điểm tự chấm.
 
+- [x] `micow train all --music <thư mục>`: huấn luyện Micow-LM trọn gói trên laptop GPU (đã thử trên CPU với tiny; chưa chạy GPU thật).
+
 ## Tiếp theo
+0. Chạy `micow train all` trên laptop GPU của người dùng (phiên Claude Code chạy trên laptop: ứng dụng Desktop hoặc `claude remote-control`).
 1. Người dùng thả nhạc thật vào trang Nhạc CapCut, bấm "Đúng hook" trên các bài đúng/sai → `micow train ear` để Ear học nhạc thật.
 2. Người dùng thử ACE-Step 1.5 trên máy có GPU (feat-005) – gửi `~/.micow/logs/acestep.log` nếu lỗi.
 3. Thử bộ cài Windows thật (feat-008).

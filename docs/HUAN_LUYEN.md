@@ -13,6 +13,26 @@ micow info                                # xem GPU, VRAM
 ```
 Gợi ý phần cứng: `tiny` chạy CPU (chỉ để thử quy trình); `small` cần GPU 8–12 GB; `base` cần ≥ 24 GB.
 
+## Cách nhanh: một lệnh trên laptop có GPU
+```bash
+micow train all --music D:/NhacCuaToi --dry-run   # xem trước: GPU, cỡ mô hình, số bước
+micow train all --music D:/NhacCuaToi             # chạy thật; ngắt giữa chừng thì chạy lại để tiếp tục
+```
+* Quét đệ quy thư mục nhạc (.wav .mp3 .flac .m4a .ogg .aac; mp3/m4a cần ffmpeg), Micow Ear tự gán bpm, giọng,
+  đoạn (intro/verse/chorus/drop) và năng lượng → `~/.micow/train/<tên>/manifest.jsonl`.
+* Phong cách: lấy từ tệp `bai.style.txt` cùng tên nếu có; không có thì đoán từ tên tệp/thư mục
+  (xếp nhạc theo thư mục `vinahouse/`, `drill/`, `ballad/`… là đủ), cuối cùng mới đoán từ âm thanh.
+  Lời: `bai.txt`; mốc thời gian lời: `bai.lrc`.
+* Cỡ mô hình theo VRAM: ≥ 24 GB → `base`; ≥ 8 GB → `small` batch 8; ≥ 5,5 GB → `small` batch 4;
+  ít hơn hoặc không có GPU → `tiny` (chỉ để thử quy trình). Đổi bằng `--preset`, `--codec-steps`, `--lm-steps`.
+* Bước đã xong được bỏ qua (codec, token); Micow-LM luôn tiếp tục từ lần lưu gần nhất (mỗi 2000 bước).
+* Xong thì trọng số nằm ở `~/.micow/models/micow-lm/<tên>/` và Micow-LM báo "sẵn sàng" trong mục Mô hình.
+* Chỉ lập manifest: `micow data folder D:/NhacCuaToi --out data`.
+
+Laptop Windows có card NVIDIA: cài PyTorch bản CUDA trước
+(`pip install torch --index-url https://download.pytorch.org/whl/cu124`), kiểm tra `micow info` thấy `cuda`.
+Laptop dễ nóng: cắm sạc, kê cao, chế độ hiệu năng cao; huấn luyện `small` thường mất nhiều ngày.
+
 ## 1. Dữ liệu
 `manifest.jsonl`, mỗi dòng một bài, đường dẫn tương đối với thư mục chứa manifest:
 ```json

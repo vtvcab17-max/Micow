@@ -237,6 +237,34 @@ class Server(unittest.TestCase):
         self.assertEqual(bravin["format"], "bravin-project")
 
 
+class TrainPipeline(unittest.TestCase):
+    def test_choose_preset_by_vram(self):
+        from micow.model.pipeline import choose_preset
+        self.assertEqual(choose_preset({"backend": "cpu", "vram_gb": 0})[0], "tiny")
+        self.assertEqual(choose_preset({"backend": "cuda", "name": "RTX 4060 Laptop", "vram_gb": 8.0})[:2], ("small", 8))
+        self.assertEqual(choose_preset({"backend": "cuda", "name": "RTX 3050", "vram_gb": 6.0})[:2], ("small", 4))
+        self.assertEqual(choose_preset({"backend": "cuda", "name": "RTX 4090", "vram_gb": 24.0})[0], "base")
+        self.assertEqual(choose_preset({"backend": "cuda", "name": "MX450", "vram_gb": 2.0})[0], "tiny")
+
+    def test_manifest_from_folder(self):
+        from micow.model.pipeline import build_manifest
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            (tmp / "nhac" / "drill").mkdir(parents=True)
+            write_wav(tmp / "nhac" / "drill" / "bai1.wav", render(make_blueprint("beat", "drill", duration=20, seed=1)).mix, SR)
+            (tmp / "nhac" / "drill" / "bai1.txt").write_text("[Verse]\nxin chào", encoding="utf-8")
+            (tmp / "nhac" / "ghi_chu.md").write_text("không phải nhạc", encoding="utf-8")
+            mf = build_manifest(tmp / "nhac", tmp / "work", log=lambda *_: None)
+            items = [json.loads(l) for l in mf.read_text(encoding="utf-8").splitlines()]
+            self.assertEqual(len(items), 1)
+            it = items[0]
+            self.assertEqual(it["style"], "Drill")          # thể loại lấy từ tên thư mục
+            self.assertIn("xin chào", it["lyrics"])
+            self.assertTrue(it["sections"] and it["bpm"] > 0)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 class EarCapCut(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

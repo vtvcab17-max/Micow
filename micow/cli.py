@@ -205,6 +205,9 @@ def main(argv: list[str] | None = None) -> int:
     dsub = d.add_subparsers(dest="dcmd")
     dl = dsub.add_parser("label", help="dùng Micow Ear gán nhãn đoạn cho manifest nhạc thật")
     dl.add_argument("manifest")
+    dfo = dsub.add_parser("folder", help="quét thư mục nhạc của bạn → manifest.jsonl đã gán nhãn (Ear)")
+    dfo.add_argument("music")
+    dfo.add_argument("--out", required=True)
     ds = dsub.add_parser("synth")
     ds.add_argument("--out", required=True)
     ds.add_argument("--n", type=int, default=50)
@@ -232,6 +235,15 @@ def main(argv: list[str] | None = None) -> int:
     te.add_argument("--n", type=int, default=260)
     te.add_argument("--beat-steps", type=int, default=3000)
     te.add_argument("--bar-steps", type=int, default=4000)
+    ta = tsub.add_parser("all", help="trọn gói trên GPU: thư mục nhạc → manifest → codec → token → Micow-LM")
+    ta.add_argument("--music", required=True, help="thư mục nhạc bạn có quyền dùng (.txt/.lrc/.style.txt cùng tên nếu có)")
+    ta.add_argument("--name", default="cua-toi", help="tên mô hình trong ~/.micow/models/micow-lm/")
+    ta.add_argument("--work", help="thư mục làm việc (mặc định ~/.micow/train/<tên>)")
+    ta.add_argument("--preset", choices=["tiny", "small", "base", "large"], help="mặc định: tự chọn theo VRAM")
+    ta.add_argument("--codec-steps", type=int)
+    ta.add_argument("--lm-steps", type=int)
+    ta.add_argument("--device", default="auto")
+    ta.add_argument("--dry-run", action="store_true", help="chỉ in kế hoạch (GPU, cỡ mô hình, số bước)")
     tl = tsub.add_parser("lm")
     tl.add_argument("--tokens", required=True)
     tl.add_argument("--out", required=True)
@@ -306,6 +318,9 @@ def main(argv: list[str] | None = None) -> int:
     elif args.cmd == "data" and args.dcmd == "label":
         from .model.data import auto_label
         print("Đã gán nhãn:", auto_label(args.manifest))
+    elif args.cmd == "data" and args.dcmd == "folder":
+        from .model.pipeline import build_manifest
+        print("Manifest:", build_manifest(args.music, args.out))
     elif args.cmd == "data" and args.dcmd == "synth":
         from .model.data import synth_dataset
         print("Manifest:", synth_dataset(args.out, args.n, args.seed, args.duration))
@@ -319,6 +334,10 @@ def main(argv: list[str] | None = None) -> int:
         elif args.tcmd == "ear":
             from .ear.train import run_all
             print(json.dumps(run_all(args.data, args.n, args.beat_steps, args.bar_steps), ensure_ascii=False, indent=1))
+        elif args.tcmd == "all":
+            from .model.pipeline import run_all as train_all
+            train_all(args.music, args.name, args.work, args.preset, args.codec_steps, args.lm_steps, args.device,
+                      args.dry_run)
         elif args.tcmd == "lm":
             T.train_lm(args.tokens, args.out, args.preset, args.steps, args.batch, args.window, args.lr,
                        args.device, args.resume)

@@ -178,6 +178,18 @@
    "status": "done",
    "version": "1.1.0",
    "evidence": "tests/test_core.py TheoryStyle.test_drill_pattern (808 có glide, snare bước 8 + 13–15) + nhận dạng 'UK drill'; micow beat -s \"UK drill tối, 808 trượt\" -d 30 → Ear nghe 71.8 BPM (nửa nhịp của 143.6), Đô thứ"
+  },
+  {
+   "id": "feat-018",
+   "name": "Huấn luyện Micow-LM trọn gói trên laptop GPU",
+   "description": "micow train all --music <thư mục>: quét nhạc → manifest gán nhãn bằng Ear (phong cách từ .style.txt / tên thư mục) → codec → token → LM, cỡ theo VRAM, chạy lại để tiếp tục; micow data folder",
+   "dependencies": [
+    "feat-003",
+    "feat-014"
+   ],
+   "status": "done",
+   "version": "1.1.0",
+   "evidence": "tests/test_core.py TrainPipeline (chọn cỡ theo VRAM, manifest từ thư mục: thể loại từ tên thư mục, lời từ .txt, bỏ tệp không phải nhạc); chạy thật trên CPU: 3 bài → codec + token + Micow-LM tiny trong 27 giây, sinh codec.pt + lm.pt. Chưa chạy trên GPU thật (máy phát triển không có GPU)."
   }
  ]
 }
