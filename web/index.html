@@ -188,12 +188,24 @@ micow train lm       --tokens data/tokens --out ~/.micow/models/micow-lm/cua-toi
       <div class="cmdrow"><pre class="cmd">curl -fsSL https://raw.githubusercontent.com/vtvcab17-max/Micow/HEAD/scripts/get.sh | bash</pre><button class="copy" type="button">Chép</button></div>
       <p>Xong thì chạy <code>micow serve --open</code>. Có card NVIDIA: thêm <code>| bash -s -- --with-torch</code> để huấn luyện bằng GPU.</p>
     </div>
-    <details class="dl-more"><summary>Đã cài rồi? Đổi địa chỉ máy chủ</summary>
-      <div class="field"><label for="srvUrl">Địa chỉ máy chủ Micow</label><input type="url" id="srvUrl" value="http://127.0.0.1:5690"></div>
-    </details>
+    <div class="dl-installed">
+      <h3>Đã cài rồi mà vẫn không kết nối?</h3>
+      <ol>
+        <li><b>Mở Micow trên máy</b>: bấm biểu tượng Micow trên Desktop (hoặc <code>Mo Micow.bat</code>; macOS/Linux:
+          <code>micow serve</code>). Giữ cửa sổ đen đó mở – tắt nó là tắt Micow.</li>
+        <li>Trình duyệt hỏi <i>"cho phép truy cập thiết bị trong mạng cục bộ"</i> → bấm <b>Cho phép</b>. Lỡ chặn: bấm biểu tượng
+          ổ khoá cạnh địa chỉ trang → bật lại quyền đó, rồi tải lại trang.</li>
+        <li>Vẫn không được: dùng bản ngay trên máy, không cần quyền gì.</li>
+      </ol>
+      <p class="dl-wait" id="dlWait" aria-live="polite">Đang chờ Micow trên máy…</p>
+      <details class="dl-more"><summary>Đổi địa chỉ máy chủ</summary>
+        <div class="field"><label for="srvUrl">Địa chỉ máy chủ Micow</label><input type="url" id="srvUrl" value="http://127.0.0.1:5690"></div>
+      </details>
+    </div>
     <div class="acts"><a class="badge n" href="https://github.com/vtvcab17-max/Micow" target="_blank" rel="noopener">Mã nguồn (MIT)</a>
       <span style="flex:1"></span>
       <a class="btn" id="dlZip" href="https://github.com/vtvcab17-max/Micow/archive/HEAD.zip" download>Tải gói .zip</a>
+      <a class="btn" id="dlLocal" href="http://127.0.0.1:5690/" target="_blank" rel="noopener">Mở bản trên máy</a>
       <button class="primary" id="srvRetry">Thử lại</button></div>
   </div>
 </div>

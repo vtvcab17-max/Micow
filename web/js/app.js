@@ -117,7 +117,15 @@ const App = {
       setTimeout(() => { b.textContent = "Chép"; }, 1800);
     };
   },
-  showOffline(force) { if (!this.online || force === true && !this.online) { $("#srvUrl").value = API.base; $("#offline").hidden = false; } else if (force) this.go("models"); },
+  // khi đang hiện màn hình tải: cứ 3 giây thử kết nối lại, Micow vừa mở trên máy là tự vào
+  watchOffline() {
+    clearInterval(this._offT);
+    this._offT = setInterval(async () => {
+      if ($("#offline").hidden || this.online) { clearInterval(this._offT); return; }
+      try { await API.get("/api/health"); clearInterval(this._offT); await this.connect(); toast("Đã kết nối Micow trên máy"); } catch { /* chưa mở */ }
+    }, 3000);
+  },
+  showOffline(force) { if (!this.online || force === true && !this.online) { $("#srvUrl").value = API.base; $("#dlLocal").href = API.base.replace(/\/$/, "") + "/"; $("#dlLocal").hidden = location.origin === API.base.replace(/\/$/, ""); $("#offline").hidden = false; this.watchOffline(); } else if (force) this.go("models"); },
 
   go(page, push = true) {
     if (!["song", "beat", "capcut", "library", "models"].includes(page)) page = "song";
