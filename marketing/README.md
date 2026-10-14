@@ -4,6 +4,7 @@
 |---|---|
 | [KE_HOACH_VIET_NAM.md](KE_HOACH_VIET_NAM.md) | Kế hoạch thị trường Việt Nam: định vị, nhóm người dùng, kênh, lịch 4 tuần, 20 ý tưởng video ngắn, kịch bản cho creator, bài đăng mẫu |
 | [KE_HOACH_QUOC_TE.md](KE_HOACH_QUOC_TE.md) | Kế hoạch thị trường nước ngoài: điều kiện trước khi ra mắt (giao diện tiếng Anh), Show HN, Reddit, Product Hunt, kịch bản và bài đăng tiếng Anh |
+| [kenh/](kenh/HUONG_DAN_TAO_KENH.md) | Bộ dựng kênh **Beta** (công ty mẹ của Bravinall): ảnh đại diện, ảnh bìa, tên, tiểu sử, bài đầu tiên cho YouTube, TikTok, Facebook, Instagram, Threads, X |
 | [video/](video/) | Video giới thiệu 30 giây, tiếng Việt và tiếng Anh, bản ngang 16:9 và dọc 9:16 |
 
 ## Video giới thiệu
