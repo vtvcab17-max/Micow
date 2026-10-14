@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Unbounded:wght@500;600;700&display=swap">
+<style>
+/* Video giới thiệu Micow: mỗi cảnh dài theo ô nhịp (1,75 s ở 137 BPM), vẽ theo thời gian t nên chụp từng khung được. */
+:root{--ink:#111216;--panel:#1a1b21;--gr:#24252d;--fg:#ecebf3;--mu:#9a99a8;--iris:#7b6cf6;--gold:#f2c14e;
+  --fd:"Unbounded",sans-serif;--fb:"Be Vietnam Pro",sans-serif;--fm:"JetBrains Mono",monospace;--u:min(1vw,1.78vh)}
+*{box-sizing:border-box;margin:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--fg);font-family:var(--fb)}
+body.v{--u:min(1.78vw,1vh)}
+#bg{position:absolute;inset:0;background:radial-gradient(70% 60% at 50% 40%,color-mix(in srgb,var(--iris) calc(var(--glow,0)*40%),transparent) 0%,transparent 70%)}
+.sc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--u)*2.4);padding:calc(var(--u)*6);text-align:center;opacity:0}
+.k{font:600 calc(var(--u)*1.5)/1.2 var(--fm);letter-spacing:.16em;text-transform:uppercase;color:var(--iris)}
+.k.g{color:var(--gold)}
+h1{font:700 calc(var(--u)*11)/.95 var(--fd);letter-spacing:-.05em}
+h1 em{font-style:normal;color:var(--iris)}
+h2{font:600 calc(var(--u)*5.2)/1.08 var(--fd);letter-spacing:-.03em;max-width:18ch}
+body.v h2{font-size:calc(var(--u)*6.4)}
+p.s{font:500 calc(var(--u)*2.3)/1.4 var(--fb);color:color-mix(in srgb,var(--fg) 80%,var(--mu));max-width:42ch}
+.logo{width:calc(var(--u)*14);height:calc(var(--u)*14)}
+/* sóng + đầu phát */
+.wave{position:relative;margin-top:calc(var(--u)*4);display:flex;align-items:center;gap:calc(var(--u)*.35);height:calc(var(--u)*16);width:min(80vw,calc(var(--u)*90))}
+.wave i{flex:1;border-radius:99px;background:var(--gr)}
+.wave i.on{background:var(--iris)}
+.ph{position:absolute;top:-8%;bottom:-8%;width:calc(var(--u)*.35);background:var(--gold);box-shadow:0 0 calc(var(--u)*2) var(--gold)}
+.ph b{position:absolute;bottom:105%;left:50%;transform:translateX(-50%);white-space:nowrap;font:700 calc(var(--u)*1.8)/1 var(--fm);color:#120f2a;background:var(--gold);padding:calc(var(--u)*.7) calc(var(--u)*1.2);border-radius:99px}
+.tc{font:700 calc(var(--u)*4)/1 var(--fm);color:var(--gold);font-variant-numeric:tabular-nums}
+.flash{position:absolute;inset:0;background:var(--iris);opacity:0;pointer-events:none}
+/* chip */
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:calc(var(--u)*1);max-width:min(86vw,calc(var(--u)*100))}
+.chip{font:600 calc(var(--u)*2)/1 var(--fb);padding:calc(var(--u)*1.3) calc(var(--u)*2.2);border-radius:99px;background:var(--panel);border:calc(var(--u)*.15) solid var(--gr)}
+.chip.on{background:var(--iris);border-color:var(--iris);color:#120f2a}
+.chip.m{font-family:var(--fm)}
+/* lời + nốt */
+.lyr{display:flex;gap:calc(var(--u)*5) calc(var(--u)*2.2);margin-top:calc(var(--u)*2);align-items:flex-end;flex-wrap:wrap;justify-content:center}
+.w{display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*1)}
+.w i{width:calc(var(--u)*6);height:calc(var(--u)*1.6);border-radius:99px;background:var(--iris)}
+.w b{font:700 calc(var(--u)*3.6)/1 var(--fb);margin-top:calc(var(--u)*3)}
+.w small{font:500 calc(var(--u)*1.4)/1 var(--fm);color:var(--mu)}
+/* bộ trống */
+.pads{display:grid;grid-template-columns:repeat(16,1fr);gap:calc(var(--u)*.5);width:min(80vw,calc(var(--u)*80))}
+.pads i{aspect-ratio:1;border-radius:calc(var(--u)*.7);background:var(--gr)}
+.pads i.on{background:var(--iris)}
+.pads i.now{outline:calc(var(--u)*.35) solid var(--gold);outline-offset:calc(var(--u)*-.35)}
+/* thẻ */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*1.6);width:min(88vw,calc(var(--u)*110))}
+body.v .cards{grid-template-columns:1fr}
+.card{padding:calc(var(--u)*2.4);border-radius:calc(var(--u)*2.4);background:var(--panel);text-align:left}
+.card b{display:block;font:600 calc(var(--u)*2.6)/1.15 var(--fd)}
+.card span{display:block;margin-top:calc(var(--u)*.8);font:500 calc(var(--u)*1.7)/1.35 var(--fb);color:var(--mu)}
+.cmd{font:500 calc(var(--u)*1.8)/1.45 var(--fm);background:#0b0b0f;border-radius:calc(var(--u)*1.6);padding:calc(var(--u)*1.6) calc(var(--u)*2.2);max-width:min(88vw,calc(var(--u)*110));word-break:break-all;text-align:left}
+.cmd::before{content:"$ ";color:var(--iris)}
+.url{font:600 calc(var(--u)*2.6)/1.2 var(--fd);color:var(--fg);max-width:90vw;overflow-wrap:anywhere}
+body.v .url{font-size:calc(var(--u)*2.5)}
+.pill{display:inline-flex;align-items:center;gap:calc(var(--u)*1);font:700 calc(var(--u)*2.4)/1 var(--fb);color:#120f2a;background:var(--iris);padding:calc(var(--u)*1.8) calc(var(--u)*3.2);border-radius:99px}
+.foot{position:absolute;left:0;right:0;bottom:calc(var(--u)*3);display:flex;justify-content:center;gap:calc(var(--u)*1.2);font:500 calc(var(--u)*1.3)/1 var(--fm);color:var(--mu);letter-spacing:.08em}
+.foot b{color:var(--gold);font-weight:500}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="root"></div>
+<div class="flash" id="flash"></div>
+<div class="foot" id="foot"></div>
+<script>
+const LANG = new URLSearchParams(location.search).get("lang") || "vi";
+if (new URLSearchParams(location.search).get("v")) document.body.classList.add("v");
+const BEAT = 60 / 137.142857, BAR = BEAT * 4, DROP = 7.0;
+const T = {
+  vi: {
+    tag: "Làm nhạc trên máy bạn.", sub: "Tạo beat, tạo bài hát, tìm hook cho CapCut.",
+    count: "Drop sắp rơi…", drop: "Drop rơi đúng giây 7.", dropSub: "Nhạc nền video này do chính Micow tạo.",
+    songK: "Tạo bài hát", song: "Từ lời và phong cách thành bài hát.", songSub: "Giai điệu theo thanh điệu tiếng Việt.",
+    words: [["Chiều", "huyền", 1], ["nay", "ngang", 0], ["đạp", "nặng", 1.4], ["xe", "ngang", 0], ["gió", "sắc", -1.2], ["bay", "ngang", 0]],
+    beatK: "Tạo beat", beat: "12 thể loại. Có cả Vinahouse, Bolero, Drill.",
+    ccK: "Nhạc CapCut", cc: "Micow Ear tìm hook và đoạn peak.", ccSub: "Cắt đúng số giây, bắt đầu đúng đầu ô nhịp.",
+    outK: "Xuất ra", out: "Đủ mọi thứ để dựng video.",
+    whyK: "Vì sao Micow", cards: [["Chạy trên máy", "Nhạc và dữ liệu ở lại máy bạn."], ["Chạy offline", "Không cần mạng khi làm nhạc."], ["Miễn phí · MIT", "Không giới hạn lượt tải."]],
+    ctaK: "Cài một lệnh", cta: "Tải Micow", site: "bravinall.vtvcab17.workers.dev/micow",
+    foot: ["Nhạc nền: Micow Beat · Vinahouse", "drop @ 7s"], eco: "Một sản phẩm của Bravinall"
+  },
+  en: {
+    tag: "Make music on your own machine.", sub: "Beats, full songs, and hooks for short videos.",
+    count: "Drop incoming…", drop: "The drop lands at exactly 7s.", dropSub: "This soundtrack was made by Micow itself.",
+    songK: "Song", song: "From lyrics and a style to a full song.", songSub: "Melodies follow Vietnamese tones, too.",
+    words: [["Chiều", "huyền", 1], ["nay", "ngang", 0], ["đạp", "nặng", 1.4], ["xe", "ngang", 0], ["gió", "sắc", -1.2], ["bay", "ngang", 0]],
+    beatK: "Beats", beat: "12 genres, from House to Drill.",
+    ccK: "Short-video music", cc: "Micow Ear finds the hook and the peak.", ccSub: "Cut to the exact second, starting on the bar.",
+    outK: "Export", out: "Everything you need to edit.",
+    whyK: "Why Micow", cards: [["Runs locally", "Your music and data stay on your machine."], ["Works offline", "No connection needed to make music."], ["Free · MIT", "Unlimited downloads."]],
+    ctaK: "One-line install", cta: "Get Micow", site: "github.com/vtvcab17-max/Micow",
+    foot: ["Soundtrack: Micow Beat · EDM", "drop @ 7s"], eco: "Part of the Bravinall ecosystem"
+  }
+}[LANG];
+const GEN = ["V-Pop", "Ballad", "R&B", "Trap", "Drill", "Boom Bap", "Lo-fi", "House", "EDM", "Vinahouse", "Bolero", "Cinematic"];
+const LOGO = '<svg class="logo" viewBox="0 0 1024 1024"><rect width="1024" height="1024" rx="230" fill="#7B6CF6"/><g transform="translate(152 152) scale(7.2)"><g fill="#fff"><rect x="12" y="14" width="12" height="72" rx="6"/><rect x="28" y="32" width="12" height="54" rx="6"/><rect x="44" y="50" width="12" height="36" rx="6"/><rect x="60" y="32" width="12" height="54" rx="6"/><rect x="76" y="14" width="12" height="72" rx="6"/></g><rect x="40.5" y="8" width="3" height="84" rx="1.5" fill="#F2C14E"/><path d="M36 6H48L42 13Z" fill="#F2C14E"/></g></svg>';
+let seed = 11; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+const WAVE = Array.from({ length: 64 }, (_, i) => i / 64 < .35 ? 18 + rnd() * 30 : 45 + rnd() * 55);
+const wave = id => '<div class="wave" id="' + id + '">' + WAVE.map(h => '<i style="height:' + h.toFixed(0) + '%"></i>').join("") + '<span class="ph"><b>drop @ 7s</b></span></div>';
+
+// cảnh: [bắt đầu, kết thúc, html]
+const S = [
+  [0, BAR * 2, '<div class="k">Micow 1.1</div>' + LOGO + '<h1>Micow<em>.</em></h1><p class="s" style="font-size:calc(var(--u)*3.2);color:var(--fg);font-weight:600">' + T.tag + '</p>'],
+  [BAR * 2, DROP, '<div class="k g">' + T.count + '</div><div class="tc" id="tc">00:00</div>' + wave("w1")],
+  [DROP, DROP + BAR * 2, '<div class="k g">drop @ 7s</div><h2>' + T.drop + '</h2><p class="s">' + T.dropSub + '</p>'],
+  [DROP + BAR * 2, DROP + BAR * 4, '<div class="k">' + T.songK + '</div><h2>' + T.song + '</h2><div class="lyr">' + T.words.map(([w, t, y]) => '<div class="w"><i style="transform:translateY(calc(var(--u)*' + y * 1.6 + '))"></i><b>' + w + '</b><small>' + t + '</small></div>').join("") + '</div><p class="s">' + T.songSub + '</p>'],
+  [DROP + BAR * 4, DROP + BAR * 6, '<div class="k">' + T.beatK + '</div><h2>' + T.beat + '</h2><div class="chips" id="gen">' + GEN.map(g => '<span class="chip">' + g + '</span>').join("") + '</div><div class="pads" id="pads">' + "<i></i>".repeat(48) + '</div>'],
+  [DROP + BAR * 6, DROP + BAR * 8, '<div class="k">' + T.ccK + '</div><h2>' + T.cc + '</h2>' + wave("w2") + '<p class="s">' + T.ccSub + '</p>'],
+  [DROP + BAR * 8, DROP + BAR * 9.5, '<div class="k">' + T.outK + '</div><h2>' + T.out + '</h2><div class="chips" id="outs">' + ["WAV", "MP3", "Stem", "MIDI", ".lrc → Bravin", "CSV", "Bravin 9:16"].map(x => '<span class="chip m">' + x + '</span>').join("") + '</div>'],
+  [DROP + BAR * 9.5, DROP + BAR * 11.5, '<div class="k">' + T.whyK + '</div><div class="cards">' + T.cards.map(([a, b]) => '<div class="card"><b>' + a + '</b><span>' + b + '</span></div>').join("") + '</div>'],
+  [DROP + BAR * 11.5, 30.01, LOGO + '<div class="k">' + T.ctaK + '</div><div class="cmd">curl -fsSL https://raw.githubusercontent.com/vtvcab17-max/Micow/HEAD/scripts/get.sh | bash</div><span class="pill">' + T.cta + ' →</span><div class="url">' + T.site + '</div><p class="s">' + T.eco + '</p>']
+];
+const root = document.getElementById("root");
+const els = S.map(([a, b, h]) => { const d = document.createElement("section"); d.className = "sc"; d.innerHTML = h; root.appendChild(d); return d; });
+document.getElementById("foot").innerHTML = "<span>" + T.foot[0] + "</span><b>" + T.foot[1] + "</b>";
+const ease = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+const PAT = ["1000100010001000", "0000100000001000", "1010101010101010"];
+
+window.draw = function (t) {
+  const sinceBeat = (t % BEAT), pulse = Math.exp(-sinceBeat * 7), post = t >= DROP;
+  document.getElementById("bg").style.setProperty("--glow", post ? (.35 + .65 * pulse) : (t / DROP) * .35);
+  document.getElementById("flash").style.opacity = t >= DROP && t < DROP + .45 ? (1 - (t - DROP) / .45) * .85 : 0;
+  S.forEach(([a, b], i) => {
+    const e = els[i], lt = t - a, inn = ease(lt / .35), out = i === S.length - 1 ? 1 : 1 - ease((t - (b - .2)) / .2);
+    const on = t >= a && t < b;
+    e.style.opacity = on ? Math.min(inn, out) : 0;
+    e.style.transform = on ? "translateY(" + ((1 - inn) * 3) + "vh) scale(" + (i === 2 ? 1 + .04 * pulse : 1) + ")" : "none";
+    e.style.visibility = on ? "visible" : "hidden";
+  });
+  // đếm ngược tới drop: đầu phát chạy theo thời gian thật
+  if (t >= BAR * 2 && t < DROP) {
+    const w = document.getElementById("w1"), p = Math.min(1, t / 20);
+    w.querySelector(".ph").style.left = (p * 100) + "%";
+    w.querySelectorAll("i").forEach((b, k) => b.classList.toggle("on", k / 64 <= p && k / 64 >= .35));
+    document.getElementById("tc").textContent = "00:0" + Math.floor(t) + "." + String(Math.floor((t % 1) * 10));
+  }
+  if (t >= DROP + BAR * 6 && t < DROP + BAR * 8) {
+    const w = document.getElementById("w2"), p = .35 + .25 * ease((t - DROP - BAR * 6) / (BAR * 2));
+    w.querySelector(".ph").style.left = "35%";
+    w.querySelector(".ph b").textContent = "hook";
+    w.querySelectorAll("i").forEach((b, k) => b.classList.toggle("on", k / 64 >= .35 && k / 64 <= p));
+  }
+  if (t >= DROP + BAR * 4 && t < DROP + BAR * 6) {
+    const step = Math.floor((t - DROP) / (BEAT / 4)) % 16, g = Math.floor((t - DROP - BAR * 4) / (BEAT)) % 12;
+    document.querySelectorAll("#gen .chip").forEach((c, k) => c.classList.toggle("on", k === g));
+    document.querySelectorAll("#pads i").forEach((c, k) => { c.classList.toggle("on", PAT[Math.floor(k / 16)][k % 16] === "1"); c.classList.toggle("now", k % 16 === step); });
+  }
+  if (t >= DROP + BAR * 8 && t < DROP + BAR * 9.5) {
+    const n = Math.floor((t - DROP - BAR * 8) / (BEAT / 2));
+    document.querySelectorAll("#outs .chip").forEach((c, k) => { c.classList.toggle("on", k === n % 7); c.style.opacity = k <= n ? 1 : .15; });
+  }
+};
+draw(0);
+</script>
+</body>
+</html>
