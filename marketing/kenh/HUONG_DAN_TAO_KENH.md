@@ -30,14 +30,13 @@ Trang này có đủ thứ để mở kênh trên từng nền tảng: tên, ả
 
 | Tệp | Dùng cho |
 |---|---|
-| `beta-anh-dai-dien-1024.png` | Ảnh đại diện mọi nền tảng (đã thử cắt tròn, vẫn đủ chữ) |
+| `beta-anh-dai-dien-1024.png` | Ảnh đại diện mọi nền tảng (ký hiệu β nằm trong vùng cắt tròn) |
 | `beta-youtube-bia-2560x1440.png` | Ảnh bìa YouTube (nội dung nằm trong vùng an toàn 1546×423 ở giữa) |
 | `beta-facebook-bia-1640x624.png` | Ảnh bìa Facebook Page |
 | `beta-x-bia-1500x500.png` | Ảnh bìa X (tiếng Anh) |
 | `beta-linkedin-bia-1584x396.png` | Ảnh bìa LinkedIn nếu cần (tiếng Anh) |
 
-> [!NOTE]
-> Logo Beta trong bộ ảnh là **logo tạm** (chữ "Beta" trên ô màu chuyển giống logo Bravinall). Có logo chính thức thì thay vào.
+Bộ logo đầy đủ (biểu tượng, logo ngang nền sáng / nền tối, bản một màu, favicon) và cách dùng: [`logo-beta/HUONG_DAN_LOGO.md`](logo-beta/HUONG_DAN_LOGO.md).
 
 Video Micow: thư mục `../video/` (tiếng Việt, tiếng Anh; dọc 9:16 và ngang 16:9).
 
