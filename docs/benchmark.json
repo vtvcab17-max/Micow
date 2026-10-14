@@ -1,12 +1,12 @@
 {
  "version": "1.1.0",
- "date": "2026-10-14 14:01",
+ "date": "2026-10-14 15:00",
  "machine": "CPU",
  "ear": {
   "rule_only": {
    "beat": 0.891,
    "downbeat": 0.88,
-   "hook": 0.718,
+   "hook": 0.795,
    "peak": 0.385,
    "kind": 0.53,
    "tempo": 0.949,
@@ -15,7 +15,7 @@
   "trained": {
    "beat": 0.994,
    "downbeat": 0.974,
-   "hook": 0.872,
+   "hook": 0.949,
    "peak": 0.872,
    "kind": 0.856,
    "tempo": 1.0,
@@ -23,12 +23,12 @@
   }
  },
  "cut": {
-  "n": 12,
+  "n": 39,
   "len_err_max_s": 0.0,
-  "start_on_true_downbeat_70ms": 1.0,
-  "start_inside_true_hook": 0.833,
-  "drop_within_0.5s_of_7s": 0.75,
-  "ear_seconds_per_minute": 1.09
+  "start_on_true_downbeat_70ms": 0.974,
+  "start_inside_true_hook": 0.949,
+  "drop_within_0.5s_of_7s": 0.59,
+  "ear_seconds_per_minute": 1.3
  },
  "generate": {
   "cases": [
@@ -39,7 +39,7 @@
     "loop": true,
     "len_err": 0.0,
     "drop_err_plan": 7.29165907120688e-06,
-    "drop_err_heard": 0.01100000000000012,
+    "drop_err_heard": 0.001000000000000334,
     "hook_start_heard": 1.741,
     "lufs": -14.000896676060071,
     "peak_db": -1.000000238418579,
@@ -48,7 +48,7 @@
     "max_step": 1.7088696956634521,
     "first_hook_note_s": 0.0,
     "drop_contrast_db": 3.058504819869995,
-    "render_s": 1.2289340496063232
+    "render_s": 1.3827078342437744
    },
    {
     "genre": "vinahouse",
@@ -66,7 +66,7 @@
     "max_step": 0.8851624727249146,
     "first_hook_note_s": 0.0,
     "drop_contrast_db": 4.11352014541626,
-    "render_s": 2.868915557861328
+    "render_s": 2.5517923831939697
    },
    {
     "genre": "edm",
@@ -84,7 +84,7 @@
     "max_step": 0.9025746583938599,
     "first_hook_note_s": 0.0,
     "drop_contrast_db": 3.013850688934326,
-    "render_s": 1.9434027671813965
+    "render_s": 1.897049903869629
    },
    {
     "genre": "vpop",
@@ -102,7 +102,7 @@
     "max_step": 1.5624175071716309,
     "first_hook_note_s": 0.0,
     "drop_contrast_db": 3.3538684844970703,
-    "render_s": 1.4012062549591064
+    "render_s": 1.402195930480957
    },
    {
     "genre": "house",
@@ -120,7 +120,7 @@
     "max_step": 0.9704248905181885,
     "first_hook_note_s": 0.0,
     "drop_contrast_db": 3.1610593795776367,
-    "render_s": 1.2812960147857666
+    "render_s": 1.12009596824646
    },
    {
     "genre": "lofi",
@@ -130,7 +130,7 @@
     "len_err": 0.0,
     "drop_err_plan": 6.562541015853185e-05,
     "drop_err_heard": 0.005000000000000782,
-    "hook_start_heard": 17.508,
+    "hook_start_heard": 10.495,
     "lufs": -14.000000177486086,
     "peak_db": -1.4054255485534668,
     "loop_seam": null,
@@ -138,7 +138,7 @@
     "max_step": 0.5465407371520996,
     "first_hook_note_s": 0.0008385987452635179,
     "drop_contrast_db": 4.425774097442627,
-    "render_s": 3.001689910888672
+    "render_s": 3.2444188594818115
    },
    {
     "genre": "ballad",
@@ -156,7 +156,7 @@
     "max_step": 1.336044430732727,
     "first_hook_note_s": 0.0022695069587138784,
     "drop_contrast_db": 3.8680648803710938,
-    "render_s": 2.377061605453491
+    "render_s": 2.596503973007202
    },
    {
     "genre": "boombap",
@@ -174,14 +174,14 @@
     "max_step": 0.5144945383071899,
     "first_hook_note_s": 0.0,
     "drop_contrast_db": 3.6781868934631348,
-    "render_s": 2.532705068588257
+    "render_s": 2.614492893218994
    }
   ],
   "n": 8,
   "len_err_max_s": 0.0,
   "drop_err_plan_max_s": 0.0001,
   "drop_heard_within_0.25s": 1.0,
-  "drop_heard_median_err_s": 0.01,
+  "drop_heard_median_err_s": 0.009,
   "first_hook_note_max_s": 0.002,
   "drop_contrast_db_min": 3.01,
   "drop_contrast_db_mean": 3.58,
@@ -190,6 +190,6 @@
   "peak_db_max": -1.0,
   "loop_seam_max": 0.2713,
   "loop_seam_ratio_max": 0.85,
-  "render_s_mean": 2.08
+  "render_s_mean": 2.1
  }
 }
