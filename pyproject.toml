@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "micow"
-version = "1.0.0"
+version = "1.1.0"
 description = "Micow – mô hình làm nhạc chạy trên máy (hệ sinh thái Bravinall): tạo beat và bài hát từ lời, phong cách, đoạn nhạc mẫu"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,4 +19,7 @@ train = ["torch>=2.1"]
 micow = "micow.cli:main"
 
 [tool.setuptools]
-packages = ["micow", "micow.dsp", "micow.engines", "micow.model"]
+packages = ["micow", "micow.dsp", "micow.engines", "micow.model", "micow.ear"]
+
+[tool.setuptools.package-data]
+"micow.ear" = ["weights/*.npz", "weights/*.json"]

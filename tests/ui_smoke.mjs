@@ -56,6 +56,23 @@ for (const h of links.filter((h) => /\.(wav|lrc|mid)\b/.test(h) || /zip$/.test(h
 console.log("✓ tải về:", links.length, "định dạng");
 await page.keyboard.press("Escape");
 await page.click("body", { position: { x: 5, y: 5 } });
+// trang Nhạc CapCut: Ear nghe clip, cắt 10 giây drop@4s, tạo mới
+if (clip) {
+  await page.goto(base + "/#capcut");
+  await page.waitForSelector("#conn.ok");
+  const [fc2] = await Promise.all([page.waitForEvent("filechooser"), page.click("#ccDrop")]);
+  await fc2.setFiles(clip);
+  await page.waitForSelector("#ccSongs .song canvas", { timeout: 120000 }).catch(() => fail("Micow Ear không nghe xong"));
+  await page.click("#ccDur .chip[data-d='10']");
+  await page.click("#ccMode button[data-m=peak_at]");
+  await page.fill("#ccPeak", "4");
+  await page.click("#ccGo");
+  await page.waitForSelector("#ccJobs .track", { timeout: 60000 }).catch(() => fail("cắt CapCut không xong"));
+  await page.click("#ccGen");
+  await page.waitForFunction(() => document.querySelectorAll("#ccJobs .track").length >= 2, null, { timeout: 120000 }).catch(() => fail("tạo nhạc CapCut không xong"));
+  console.log("✓ CapCut:", (await page.$$eval("#ccJobs .track .tt", (n) => n.map((x) => x.textContent))).join(" | "));
+  if (shots) await page.screenshot({ path: shots + "/capcut.png" });
+}
 await page.goto(base + "/#library");
 await page.waitForSelector("#libList .track");
 if (shots) await page.screenshot({ path: shots + "/library.png" });

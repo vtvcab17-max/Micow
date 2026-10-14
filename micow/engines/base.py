@@ -11,7 +11,7 @@ from .. import paths
 from ..audio_io import read_audio
 from ..planner import Blueprint, make_blueprint
 
-CLIP_USES = {"style", "loop", "chop", "kit", "cover", "complete"}
+CLIP_USES = {"style", "loop", "chop", "kit", "hook", "cover", "complete"}
 
 
 @dataclass
@@ -29,6 +29,8 @@ class GenRequest:
     seed: int | None = None
     gender: str | None = None           # female | male
     guide_vocal: bool = True
+    peak_at: float | None = None        # CapCut: drop rơi đúng giây này
+    loop: bool = False                  # CapCut: vòng lặp liền mạch
     clips: list[dict] = field(default_factory=list)   # [{"id": upload_id, "use": "style|loop|chop|kit|cover|complete"}]
     options: dict = field(default_factory=dict)
 
@@ -36,8 +38,10 @@ class GenRequest:
     def from_dict(cls, d: dict) -> "GenRequest":
         known = {k: v for k, v in d.items() if k in cls.__dataclass_fields__}
         r = cls(**known)
-        if r.mode not in ("beat", "song"):
+        if r.mode not in ("beat", "song", "capcut"):
             r.mode = "song"
+        r.peak_at = float(r.peak_at) if r.peak_at not in (None, "") else None
+        r.loop = bool(r.loop)
         if r.seed is None or r.seed == "" or (isinstance(r.seed, (int, float)) and r.seed < 0):
             r.seed = random.randint(0, 999_999)
         r.seed = int(r.seed)
@@ -65,19 +69,20 @@ def load_clip(clip_id: str) -> dict:
 
 
 def blueprint_for(req: GenRequest, clips: list[dict]) -> Blueprint:
-    ref = None
-    for c in clips:  # clip đầu tiên dùng để học phong cách (trừ cover/complete)
-        if c.get("use") in ("style", "loop", "chop", "kit") and c.get("analysis", {}).get("bpm"):
-            ref = c["analysis"]
-            break
-    return make_blueprint(req.mode, req.style, req.lyrics, req.title, req.genre, req.bpm, req.key,
-                          req.duration, req.energy, req.seed, ref)
+    """Bản thiết kế; nghe NHIỀU clip (style/loop/chop/kit/hook) và gộp thành một hồ sơ phong cách."""
+    from ..analysis import aggregate_reference
+    ref = aggregate_reference([c.get("analysis", {}) for c in clips if c.get("use") in ("style", "loop", "chop", "kit", "hook")])
+    bp = make_blueprint(req.mode, req.style, req.lyrics, req.title, req.genre, req.bpm, req.key,
+                        req.duration, req.energy, req.seed, ref, req.peak_at, req.loop)
+    if ref and ref.get("n_clips", 1) > 1:
+        bp.notes.append(f"Đã nghe {ref['n_clips']} đoạn nhạc mẫu và gộp thành một phong cách")
+    return bp
 
 
 class Engine:
     id = "base"
     name = "Engine"
-    modes = ("beat", "song")
+    modes = ("beat", "song", "capcut")
     license = ""
     description = ""
     vocals = False          # có giọng hát thật không

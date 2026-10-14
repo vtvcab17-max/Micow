@@ -21,10 +21,11 @@ BASE_ENERGY = {"intro": 0.35, "verse": 0.55, "prechorus": 0.68, "chorus": 0.92, 
                "bridge": 0.5, "drop": 1.0, "break": 0.28, "instrumental": 0.72, "outro": 0.32}
 # tốc độ hát điển hình (âm tiết/giây) theo thể loại – rap nhanh, ballad chậm
 SING_RATE = {"ballad": 2.0, "bolero": 1.9, "cinematic": 2.0, "lofi": 2.5, "rnb": 2.6, "vpop": 2.8,
-             "house": 2.8, "edm": 2.8, "vinahouse": 3.0, "trap": 4.6, "boombap": 4.4}
+             "house": 2.8, "edm": 2.8, "vinahouse": 3.0, "trap": 4.6, "drill": 4.4, "boombap": 4.4}
 # cấu trúc beat mặc định (không lời): (loại, số ô nhịp)
 BEAT_FORMS = {
     "trap": [("intro", 4), ("chorus", 8), ("verse", 16), ("chorus", 8), ("verse", 16), ("chorus", 8), ("outro", 4)],
+    "drill": [("intro", 4), ("chorus", 8), ("verse", 16), ("chorus", 8), ("verse", 16), ("chorus", 8), ("outro", 4)],
     "boombap": [("intro", 4), ("verse", 16), ("chorus", 8), ("verse", 16), ("chorus", 8), ("outro", 4)],
     "lofi": [("intro", 4), ("verse", 8), ("chorus", 8), ("verse", 8), ("chorus", 8), ("outro", 4)],
     "house": [("intro", 8), ("verse", 16), ("prechorus", 8), ("drop", 16), ("break", 8), ("prechorus", 8), ("drop", 16), ("outro", 8)],
@@ -62,6 +63,8 @@ class Blueprint:
     reference: dict | None = None
     lyrics_text: str = ""
     notes: list[str] = field(default_factory=list)
+    target_duration: float | None = None   # CapCut: độ dài chính xác (giây)
+    loop: bool = False                     # CapCut: vòng lặp liền mạch
 
     @property
     def bpm(self) -> int:
@@ -81,7 +84,7 @@ class Blueprint:
 
     @property
     def duration(self) -> float:
-        return self.total_bars * self.bar_seconds
+        return self.target_duration or self.total_bars * self.bar_seconds
 
     def section_at_bar(self, bar: int) -> Section | None:
         for s in self.sections:
@@ -95,7 +98,8 @@ class Blueprint:
             "title": self.title, "mode": self.mode, "seed": self.seed, "bpm": self.bpm,
             "key": self.key.to_dict(), "beats_per_bar": self.beats_per_bar,
             "duration": round(self.duration, 2), "total_bars": self.total_bars,
-            "style": self.style.to_dict(), "notes": self.notes,
+            "style": self.style.to_dict(), "notes": self.notes, "target_duration": self.target_duration,
+            "loop": self.loop,
             "sections": [{
                 "kind": s.kind, "label": s.label, "bars": s.bars, "start_bar": s.start_bar,
                 "start": round(s.start_bar * bs, 3), "end": round((s.start_bar + s.bars) * bs, 3),
@@ -142,7 +146,7 @@ def _harmonic_rhythm(style: StyleSpec) -> int:
 def make_blueprint(mode: str = "song", style_text: str = "", lyrics: str = "", title: str = "",
                    genre: str | None = None, bpm: int | None = None, key: str | None = None,
                    duration: float | None = None, energy: float | None = None, seed: int = 0,
-                   reference: dict | None = None) -> Blueprint:
+                   reference: dict | None = None, peak_at: float | None = None, loop: bool = False) -> Blueprint:
     rng = np.random.default_rng(seed)
     notes: list[str] = []
     # 1) phong cách – clip mẫu được dùng khi người dùng không ghi rõ
@@ -163,6 +167,9 @@ def make_blueprint(mode: str = "song", style_text: str = "", lyrics: str = "", t
             notes.append(f"Giọng lấy theo clip mẫu: {style.key.name_vi()}")
         if energy is None and reference.get("energy") is not None:
             style.energy = float(np.clip(0.5 * style.energy + 0.5 * reference["energy"], 0.15, 1))
+
+    if mode == "capcut":
+        return _capcut_blueprint(style, lyrics, title, duration, peak_at, loop, seed, reference, notes, rng)
 
     # 2) cấu trúc
     lyr_secs: list[LyricSection] = parse_lyrics(lyrics) if (mode == "song" and lyrics.strip()) else []
@@ -238,6 +245,60 @@ def make_blueprint(mode: str = "song", style_text: str = "", lyrics: str = "", t
     title = title.strip() or default_title(style, seed)
     return Blueprint(title, mode if lyr_secs else ("beat" if mode == "beat" else "song"), style, sections, seed,
                      reference=reference, lyrics_text=lyrics, notes=notes)
+
+
+def _capcut_blueprint(style: StyleSpec, lyrics: str, title: str, duration: float | None, peak_at: float | None,
+                      loop: bool, seed: int, reference: dict | None, notes: list[str], rng) -> Blueprint:
+    """Nhạc ngắn cho CapCut/TikTok: hook vang ngay ô nhịp đầu, build-up rồi drop đúng giây `peak_at`."""
+    dur = float(duration or 15.0)
+    dur = float(np.clip(dur, 5.0, 90.0))
+    if peak_at is not None:
+        peak_at = float(np.clip(peak_at, 1.0, dur - 1.0))
+        if not style.explicit_bpm:
+            # chỉnh tempo để drop rơi đúng đầu ô nhịp
+            lo, hi = style.preset["bpm"]
+            best = None
+            for k in range(1, 64):  # số ô nhịp trước drop: chọn tempo gần tempo của thể loại nhất
+                b = 240.0 * k / peak_at
+                if 55 <= b <= 190:
+                    d = abs(np.log(b / style.bpm)) + (0 if lo - 10 <= b <= hi + 10 else 0.05)
+                    if best is None or d < best[0]:
+                        best = (d, b)
+            if best:
+                style.bpm = round(best[1], 3)
+                notes.append(f"Tempo chỉnh thành {style.bpm:g} BPM để drop rơi đúng giây {peak_at:g}")
+    bar_s = 240.0 / style.bpm
+    total = max(2, int(np.ceil(dur / bar_s - 0.02)))
+    pb = int(round(peak_at / bar_s)) if peak_at is not None else max(1, total // 2)
+    pb = int(np.clip(pb, 1, total - 1))
+    hook_lines: list[LyricLine] = []
+    if lyrics.strip():
+        secs = parse_lyrics(lyrics)
+        ch = next((s for s in secs if s.kind == "chorus" and s.lines), None) or next((s for s in secs if s.lines), None)
+        hook_lines = list(ch.lines) if ch else []
+    plan = []
+    for kind, label, bars, e in (("chorus", "Hook", pb, 0.6), ("drop", "Peak", total - pb, 1.0)):
+        lines, lb = [], []
+        if hook_lines:
+            for l in hook_lines:
+                b = _line_bars(l, style.bpm, style.genre)
+                if sum(lb) + b <= bars:
+                    lines.append(l)
+                    lb.append(b)
+            if not lines:
+                notes.append(f"Lời hook dài hơn đoạn {label} ({bars} ô nhịp) – đoạn này không lời")
+        plan.append((kind, label, bars, lines, lb, e))
+    hr = _harmonic_rhythm(style)
+    prog = _section_prog(style, "chorus", 1, rng)
+    sections, bar = [], 0
+    for i, (kind, label, bars, lines, lb, e) in enumerate(plan):
+        chords = [prog[((bar + j) // hr) % len(prog)] for j in range(bars)]
+        sections.append(Section(kind, label, bars, bar, e, chords, lines, lb, 1))
+        bar += bars
+    title = title.strip() or default_title(style, seed) + " · CapCut"
+    bp = Blueprint(title, "capcut", style, sections, seed, reference=reference, lyrics_text=lyrics, notes=notes,
+                   target_duration=round(dur, 3), loop=loop)
+    return bp
 
 
 _TITLE_A = ["Đêm", "Phố", "Mưa", "Nắng", "Gió", "Sóng", "Mây", "Sao", "Lửa", "Biển"]

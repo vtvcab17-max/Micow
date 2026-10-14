@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="micow-version" content="1.0.0">
+<meta name="micow-version" content="1.1.0">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Micow</title>
 <meta name="description" content="Micow – mô hình làm nhạc chạy trên máy của bạn: tạo beat và bài hát hoàn chỉnh từ lời, phong cách và đoạn nhạc mẫu. Hệ sinh thái Bravinall.">
@@ -21,6 +21,7 @@
     <nav class="nav" id="nav">
       <button data-page="song" aria-current="page"><i data-ico="mic"></i>Tạo bài hát</button>
       <button data-page="beat"><i data-ico="drum"></i>Tạo beat</button>
+      <button data-page="capcut"><i data-ico="scissors"></i>Nhạc CapCut</button>
       <button data-page="library"><i data-ico="note"></i>Thư viện</button>
       <button data-page="models"><i data-ico="chip"></i>Mô hình</button>
     </nav>
@@ -81,11 +82,48 @@
       </div>
     </section>
 
+    <!-- ================= NHẠC CAPCUT ================= -->
+    <section class="page" id="page-capcut" hidden>
+      <header class="hbig"><h1>Nhạc CapCut</h1><p>Thả nhiều bài cùng lúc – Micow Ear nghe từng bài, tìm hook và đoạn peak, rồi cắt đúng số giây, bắt đầu đúng đầu ô nhịp, drop rơi đúng giây bạn chọn. Hoặc tạo nhạc ngắn mới: hook vang ngay giây đầu.</p></header>
+      <div class="grid2">
+        <div class="col">
+          <div class="card">
+            <div class="ch"><span>Nghe nhiều bài</span><span class="sub" id="ccCount"></span></div>
+            <div class="drop" id="ccDrop" tabindex="0" role="button"></div>
+            <div class="songs" id="ccSongs"></div>
+          </div>
+        </div>
+        <div class="col sticky">
+          <div class="card" id="ccCutCard">
+            <div class="ch"><span>Cắt cho CapCut</span><span class="sub" id="ccSel">chọn một bài bên trái</span></div>
+            <div class="gh">Độ dài</div>
+            <div class="chips" id="ccDur"></div>
+            <div class="gh">Bắt đầu từ</div>
+            <div class="seg" id="ccMode"><button aria-pressed="true" data-m="hook">Hook</button><button aria-pressed="false" data-m="peak">Peak / drop</button><button aria-pressed="false" data-m="peak_at">Drop tại giây…</button></div>
+            <div class="field" id="ccPeakField" hidden><label>Drop rơi vào giây <span class="rv" id="ccPeakV">7</span> của video</label><input type="range" id="ccPeak" min="1" max="59" step="0.5" value="7"></div>
+            <button class="tog" id="ccLoop" aria-pressed="false">Vòng lặp liền mạch (phát lặp không giật)</button>
+            <button class="tog" id="ccSnap" aria-pressed="false">Kết thúc ở đầu ô nhịp (độ dài xê dịch nhẹ)</button>
+            <button class="primary go" id="ccGo" disabled></button>
+          </div>
+          <div class="card">
+            <div class="ch"><span>Tạo nhạc CapCut mới</span><span class="sub">Micow Beat · hook ngay giây đầu</span></div>
+            <div class="chips scroll" id="ccGenres"></div>
+            <textarea class="style" id="ccStyle" rows="2" placeholder="Ví dụ: vinahouse sôi động, sáo, drop mạnh"></textarea>
+            <div class="field"><label>Drop tại giây <span class="rv" id="ccGenPeakV">7</span></label><input type="range" id="ccGenPeak" min="2" max="58" step="0.5" value="7"></div>
+            <button class="tog" id="ccUseSongs" aria-pressed="false">Học phong cách từ các bài đã thả</button>
+            <button class="tog" id="ccUseHook" aria-pressed="false">Lấy hook của bài đang chọn làm vòng lặp</button>
+            <button class="tonal go" id="ccGen"></button>
+          </div>
+          <div class="jobs" id="ccJobs"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- ================= THƯ VIỆN ================= -->
     <section class="page" id="page-library" hidden>
       <header class="hbig"><h1>Thư viện</h1><p>Mọi bài đã tạo nằm trên máy bạn (thư mục ~/.micow/library). Tải WAV, MP3, stem, MIDI kèm lời, hoặc .lrc để làm video lời bài hát trong Bravin.</p></header>
       <div class="lib-tools">
-        <div class="seg" id="libFilter"><button aria-pressed="true" data-f="all">Tất cả</button><button aria-pressed="false" data-f="song">Bài hát</button><button aria-pressed="false" data-f="beat">Beat</button></div>
+        <div class="seg" id="libFilter"><button aria-pressed="true" data-f="all">Tất cả</button><button aria-pressed="false" data-f="song">Bài hát</button><button aria-pressed="false" data-f="beat">Beat</button><button aria-pressed="false" data-f="capcut">CapCut</button></div>
         <input type="text" id="libSearch" placeholder="Tìm theo tên, thể loại…">
         <button class="ghost" id="libRefresh"><i data-ico="refresh"></i>Làm mới</button>
       </div>
@@ -122,6 +160,7 @@ micow train lm       --tokens data/tokens --out ~/.micow/models/micow-lm/cua-toi
 <nav class="tabs" id="tabs" aria-label="Điều hướng">
   <button data-page="song" aria-current="page"><i data-ico="mic"></i>Bài hát</button>
   <button data-page="beat"><i data-ico="drum"></i>Beat</button>
+  <button data-page="capcut"><i data-ico="scissors"></i>CapCut</button>
   <button data-page="library"><i data-ico="note"></i>Thư viện</button>
   <button data-page="models"><i data-ico="chip"></i>Mô hình</button>
 </nav>
@@ -145,5 +184,6 @@ micow serve --open</pre>
 <script src="js/api.js"></script>
 <script src="js/player.js"></script>
 <script src="js/app.js"></script>
+<script src="js/capcut.js"></script>
 </body>
 </html>

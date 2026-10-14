@@ -93,7 +93,8 @@ class MicowLMEngine(Engine):
         wav = run.generate(bp.style.caption(instrumental), lyrics, bp.bpm, bp.key.name(), dur, ref, prompt,
                            cfg_scale=float(opts.get("cfg", 3.0)), temperature=float(opts.get("temperature", 1.0)),
                            top_k=int(opts.get("top_k", 250)), seed=req.seed,
-                           progress=lambda p: job.update(0.08 + 0.8 * p, f"Sinh token {int(p * 100)}%"))
+                           progress=lambda p: job.update(0.08 + 0.8 * p, f"Sinh token {int(p * 100)}%"),
+                           plan=bp.to_dict()["sections"])
         audio = to_stereo(resample(wav.astype(np.float32), run.sr, SR))
         audio, mst = mastering.master(audio, bp.style.genre)
         meta = {"id": job.id, "title": bp.title, "mode": bp.mode, "engine": self.id, "engine_name": f"{self.name} · {mname}",

@@ -63,7 +63,23 @@ micow song -e micow-lm -s "ballad buồn, piano" -l loi.txt -d 60 --clip mau.wav
 micow beat -e micow-lm -s "lofi chill" --clip dau_bai.wav:complete    # nối dài clip
 ```
 
-## 6. Mở rộng gợi ý
+## 6. Huấn luyện Micow Ear (nghe phách, hook, peak) – chạy được trên CPU
+```bash
+micow train ear                 # sinh 260 bài có nhãn (~45 phút trên 4 nhân), huấn luyện BeatTCN + BarMLP, đánh giá
+micow bench                     # đo lại, ghi docs/BENCHMARK.md
+```
+* Trọng số ghi vào `micow/ear/weights/` (chạy bằng numpy, không cần PyTorch khi dùng).
+* Muốn Ear nghe "đúng tai" bạn với nhạc thật: mở trang **Nhạc CapCut**, thả bài, chọn ứng viên hook đúng (nút
+  **Hook khác**) rồi bấm **Đúng hook**; nhãn lưu ở `~/.micow/ear_labels.jsonl`, lần `micow train ear` sau sẽ học thêm.
+
+## 7. Nhãn cấu trúc cho Micow-LM v2
+Micow-LM v2 học thêm "đường cấu trúc" (loại đoạn + năng lượng từng khung). Dữ liệu tổng hợp đã có sẵn nhãn;
+với nhạc thật, cho Micow Ear gán nhãn trước khi token hoá:
+```bash
+micow data label data/manifest.jsonl
+```
+
+## 8. Mở rộng gợi ý
 * Dữ liệu lớn hơn và đa dạng hơn quan trọng hơn mô hình lớn hơn (CEO Suno: cả giọng nói không phải nhạc cũng giúp).
 * Tinh chỉnh bằng phản hồi người nghe (thích/không thích) theo kiểu DPO là hướng Suno nhắc tới.
 * Có thể thay Micow Codec bằng codec mở mạnh hơn (DAC, EnCodec) nếu giấy phép trọng số phù hợp mục đích của bạn.

@@ -1,0 +1,26 @@
+{
+ "train": 221,
+ "val": 39,
+ "rule_only": {
+  "beat": 0.891,
+  "downbeat": 0.88,
+  "hook": 0.718,
+  "peak": 0.41,
+  "kind": 0.53,
+  "tempo": 0.949,
+  "n": 39
+ },
+ "trained": {
+  "beat": 0.994,
+  "downbeat": 0.974,
+  "hook": 0.872,
+  "peak": 0.821,
+  "kind": 0.856,
+  "tempo": 1.0,
+  "n": 39
+ },
+ "date": "2026-10-14 13:50",
+ "data": "bài tổng hợp có nhãn, trộn lại stem/EQ/nhiễu (micow/ear/dataset.py)",
+ "beat_steps": 3000,
+ "bar_steps": 4000
+}

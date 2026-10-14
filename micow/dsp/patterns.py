@@ -44,6 +44,11 @@ KITS: dict[str, dict[int, dict[str, str]]] = {
     "trap": {0: {"hat": "o.o.o.o.o.o.o.o."},
              1: {"kick": "x.........x.....", "clap": "........X.......", "hat": "x.x.x.x.x.x.x.x."},
              2: {"kick": "x......x..x...o.", "clap": "........X.......", "hat": "x.x.x.x.x.x.x.x.", "ohat": "......o........."}},
+    # drill: nửa nhịp (snare phách 3), hi-hat nhóm 3-3-2, kick lệch phách; snare "trễ" thêm ở ô nhịp lẻ (_drill_bar)
+    "drill": {0: {"hat": "x..o..o.x..o..o."},
+              1: {"kick": "x.........x.....", "snare": "........X.......", "hat": "x..x..x.x..x..x."},
+              2: {"kick": "x.....x...x..x..", "snare": "........X.......", "hat": "x..x..x.x..x..x.",
+                  "rim": "...g.......g...."}},
     "boombap": {0: {"hat": "o.o.o.o.o.o.o.o.", "rim": "....o.......o..."},
                 1: {"kick": "x......x..x.....", "snare": "....x.......x...", "hat": "x.o.x.o.x.o.x.o."},
                 2: {"kick": "x......x.xx.....", "snare": "....X.......X..g", "hat": "x.o.x.o.x.o.x.o.", "ohat": "......o........."}},
@@ -133,12 +138,14 @@ class Arranger:
             lvl = level_for(sec)
             nxt = secs[si + 1] if si + 1 < len(secs) else None
             build = (self.genre in BUILD_GENRES and nxt is not None and nxt.kind in ("chorus", "drop")
-                     and sec.kind in ("prechorus", "break", "verse"))
+                     and sec.kind in ("prechorus", "break", "verse")) or (bp.mode == "capcut" and nxt is not None
+                                                                          and nxt.kind == "drop")
             for b in range(sec.bars):
                 bar = sec.start_bar + b
                 pats = KITS[self.kit][lvl]
                 last = b == sec.bars - 1
-                build_zone = build and (sec.kind == "prechorus" and b >= sec.bars / 2 or b >= sec.bars - 2)
+                build_zone = build and (sec.kind == "prechorus" and b >= sec.bars / 2 or
+                                        b >= sec.bars - (1 if bp.mode == "capcut" and sec.bars <= 4 else 2))
                 if sec.kind == "outro" and b >= sec.bars - 1:
                     pats = {}
                 for inst, pat in pats.items():
@@ -153,15 +160,18 @@ class Arranger:
                 if self.kit == "bolero" and lvl >= 1:
                     for st, inst, v in BOLERO_CONGA:
                         self.add(bar, st, inst, "drums", vel=v)
-                if self.kit == "trap" and lvl >= 1 and (b % 2 == 1 or self.rng.random() < 0.3):
+                if self.kit in ("trap", "drill") and lvl >= 1 and (b % 2 == 1 or self.rng.random() < 0.3):
                     self._trap_roll(bar)
+                if self.kit == "drill" and lvl >= 1 and b % 2 == 1:
+                    self._drill_bar(bar)
                 if build_zone:
-                    self._snare_build(bar, b - (sec.bars // 2 if sec.kind == "prechorus" else sec.bars - 2), sec)
+                    k0 = sec.bars // 2 if sec.kind == "prechorus" else sec.bars - (1 if bp.mode == "capcut" and sec.bars <= 4 else 2)
+                    self._snare_build(bar, b - k0 + (2 if bp.mode == "capcut" and sec.bars <= 4 else 0), sec)
                 elif last and nxt is not None and nxt.energy > sec.energy + 0.1 and lvl >= 1:
                     self._fill(bar)
             if self.kit in HAS_CRASH and sec.kind in ("chorus", "drop") or (sec.kind == "verse" and sec.index == 1 and si > 0 and self.kit in HAS_CRASH):
                 self.add(sec.start_bar, 0, "crash", "drums", vel=0.8)
-            if build and self.genre in ("edm", "vinahouse", "house"):
+            if build and (self.genre in ("edm", "vinahouse", "house") or bp.mode == "capcut"):
                 rb = 4 if sec.bars >= 8 else 2
                 self.events.append(Ev((sec.start_bar + sec.bars - rb) * self.bar_s, rb * self.bar_s, "riser", "fx", vel=0.6))
             if sec.kind == "drop" or (sec.kind == "chorus" and self.genre in ("edm", "vinahouse", "cinematic")):
@@ -178,6 +188,11 @@ class Arranger:
             pts = np.arange(start, start + 2, 1)
         for i, p in enumerate(pts):
             self.add(bar, float(p), "hat", "drums", vel=0.45 + 0.1 * (i % 2))
+
+    def _drill_bar(self, bar):
+        """Snare "trễ" đặc trưng drill: thêm một phát lệch sau phách 3 ở ô nhịp lẻ (vị trí 13/14/15)."""
+        st = float(self.rng.choice([13, 14, 15]))
+        self.add(bar, st, "snare", "drums", vel=0.72)
 
     def _snare_build(self, bar, k, sec):
         dens = [4, 2, 1, 0.5][min(3, max(0, k))]
@@ -213,12 +228,17 @@ class Arranger:
                     self.add(bar, st, kind, "bass", dur_steps=ln * 0.92, midi=root + iv2, vel=0.9)
 
     def _bass808(self, bar, ch, lvl):
-        kicks = [st for st, _ in P(KITS["trap"][max(1, lvl)]["kick"])]
+        kit = self.kit if self.kit in ("trap", "drill") else "trap"
+        kicks = [st for st, _ in P(KITS[kit][max(1, lvl)]["kick"])]
         root = 26 + (ch.root_pc - 2) % 12
         prev = None
         for i, st in enumerate(kicks):
             end = kicks[i + 1] if i + 1 < len(kicks) else 16
-            m = root + (12 if (i == len(kicks) - 1 and self.rng.random() < 0.3) else 0)
+            if kit == "drill" and i > 0:
+                # drill: 808 nhảy quãng (5, 7, quãng tám, xuống 2) rồi trượt cao độ về nốt mới
+                m = root + int(self.rng.choice([0, 12, 7, 10, -2, 5]))
+            else:
+                m = root + (12 if (i == len(kicks) - 1 and self.rng.random() < 0.3) else 0)
             glide = 0.0
             if prev is not None and prev != m:
                 from ..theory import midi_to_hz

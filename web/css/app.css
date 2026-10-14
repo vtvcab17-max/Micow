@@ -193,3 +193,16 @@ pre.cmd{background:#0f1013;border-radius:var(--r-m);padding:12px 14px;font:500 1
   .tabs button[aria-current=page]{color:var(--fg)}
   .tabs button[aria-current=page] svg.i{background:var(--acc-ct);color:var(--on-acc-ct)}
 }
+
+/* trang CapCut */
+.songs{display:flex;flex-direction:column;gap:10px}
+.song{background:var(--panel2);border-radius:var(--r-l);padding:12px 14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:box-shadow .12s}
+.song[aria-selected=true]{box-shadow:inset 0 0 0 1.5px var(--accent);background:#26253a}
+.song .st{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.song .st b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song canvas{width:100%;height:56px;display:block;border-radius:10px;background:#18191e}
+.song .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.song .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.song .acts{display:flex;gap:6px;flex-wrap:wrap}
+.song .acts button{font-size:12px;padding:6px 11px}
+.song .busy{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:12.5px}

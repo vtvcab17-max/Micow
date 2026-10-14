@@ -94,10 +94,9 @@ def render(bp: Blueprint, clips: list[dict] | None = None, gender: str | None = 
     arr.bass()
     arr.chords()
     melody: list[VNote] = []
-    if bp.mode == "song" and any(s.vocal for s in bp.sections):
+    if bp.mode in ("song", "capcut") and any(s.vocal for s in bp.sections):
         melody = make_melody(bp, gender=gender, seed=bp.seed)
-    else:
-        arr.hook()
+    arr.hook()  # hook không lời cho các đoạn điệp khúc/drop không có giọng
     kit = bp.style.preset["drums"]
 
     user_kit = None
@@ -111,6 +110,8 @@ def render(bp: Blueprint, clips: list[dict] | None = None, gender: str | None = 
             clip_layers.append(sampler.make_loop_layer(c["audio"], a, bp))
         elif use == "chop":
             clip_layers.append(sampler.make_chop_layer(c["audio"], a, bp, seed=bp.seed))
+        elif use == "hook":
+            clip_layers.append(sampler.make_hook_layer(c["audio"], c.get("ear") or {}, bp))
 
     say(0.15, "Tổng hợp trống và bass")
     kick_times = []
@@ -195,9 +196,36 @@ def render(bp: Blueprint, clips: list[dict] | None = None, gender: str | None = 
         i, j = int(sec.start_bar * bp.bar_seconds * SR), int((sec.start_bar + sec.bars) * bp.bar_seconds * SR)
         auto[i:j] = 0.75 + 0.3 * sec.energy
     auto = fx.one_pole(auto, np.exp(-1 / (SR * 0.25)))
-    mix = sum(stems.values()) * auto[:, None]
-    end = int((bp.duration + 1.8) * SR)
-    mix = fx.fade(mix[:end], 0.0, 1.6)
+    drop = next((s for s in bp.sections if s.kind == "drop"), None) if bp.mode == "capcut" else None
+    if drop is not None:
+        # CapCut: hook nhỏ + tối hơn, mở lọc dần, lặng nửa phách ngay trước drop, drop vào đầy đủ
+        i_drop = int(drop.start_bar * bp.bar_seconds * SR)
+        sweep = np.ones(total, np.float32)
+        sweep[:i_drop] = np.linspace(0.12, 0.7, i_drop) ** 1.5
+        for name in ("chords", "lead", "sample"):
+            if name in stems:
+                stems[name] = fx.sweep_lp(stems[name], sweep[:len(stems[name])], 450, 18000)
+        auto = np.ones(total, np.float32)
+        auto[:i_drop] = 0.5
+        gap = int(0.5 * 60.0 / bp.bpm * SR)
+        auto[max(0, i_drop - gap):i_drop] = 0.08
+        auto = fx.one_pole(auto, np.exp(-1 / (SR * 0.004)))
+        fx_st = stems.get("fx")
+        mix = sum(v for k, v in stems.items() if k != "fx") * auto[:, None] + (fx_st if fx_st is not None else 0)
+    else:
+        mix = sum(stems.values()) * auto[:, None]
+    if bp.target_duration:
+        end = int(bp.target_duration * SR)
+        if bp.loop:  # vòng lặp liền mạch: đuôi vang của đoạn cuối chồng lên đầu bài
+            tail = mix[end:end + int(1.5 * SR)]
+            mix = mix[:end].copy()
+            mix[:len(tail)] += tail * np.linspace(1, 0, len(tail))[:, None] ** 2
+            stems = {k: v[:end] for k, v in stems.items()}
+        else:
+            mix = fx.fade(mix[:end], 0.0, 0.35)
+    else:
+        end = int((bp.duration + 1.8) * SR)
+        mix = fx.fade(mix[:end], 0.0, 1.6)
     mix, mstats = master.master(mix, bp.style.genre)
     stems = {k: v[:end] for k, v in stems.items()}
     lrc = lrc_lines(bp, melody) if melody else []

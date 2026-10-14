@@ -104,12 +104,17 @@ def chroma(S: np.ndarray, n_fft: int = N_FFT, fmin: float = 100, fmax: float = 5
     return C
 
 
-def harmonic_part(S: np.ndarray) -> np.ndarray:
-    """Tách phần hoà âm (HPSS bằng lọc trung vị) để trống không làm sai giọng."""
+def harmonic_part(S: np.ndarray, max_bin: int | None = None) -> np.ndarray:
+    """Tách phần hoà âm (HPSS bằng lọc trung vị) để trống không làm sai giọng.
+    max_bin: chỉ xử lý các bin thấp hơn (chroma chỉ cần < 5 kHz) cho nhanh; phần trên trả 0."""
     from scipy.ndimage import median_filter
-    H = median_filter(S, size=(1, 17))
-    P = median_filter(S, size=(9, 1))
-    return S * (H ** 2 / (H ** 2 + P ** 2 + 1e-12))
+    Sx = S if max_bin is None else S[:max_bin]
+    H = median_filter(Sx, size=(1, 17))
+    P = median_filter(Sx, size=(9, 1))
+    out = Sx * (H ** 2 / (H ** 2 + P ** 2 + 1e-12))
+    if max_bin is not None and max_bin < S.shape[0]:
+        out = np.concatenate([out, np.zeros((S.shape[0] - max_bin, S.shape[1]), out.dtype)], 0)
+    return out
 
 
 # Albrecht & Shanahan (2013): profile giọng sắc nét hơn cho nhạc phổ thông
@@ -121,7 +126,7 @@ def estimate_key(y: np.ndarray) -> tuple[Key, float]:
     """Giọng từ chroma hoà âm (100–5000 Hz) + chroma bass (35–200 Hz, FFT dài cho đủ phân giải)."""
     nf = 8192
     _, _, Z = stft(y, fs=A_SR, nperseg=nf, noverlap=nf - 2048, boundary=None, padded=True)
-    S = harmonic_part(np.abs(Z).astype(np.float32))
+    S = harmonic_part(np.abs(Z).astype(np.float32), int(5200 / (A_SR / nf)) + 1)
     T = chroma(S, nf, 100, 5000)
     T = T / (T.sum(axis=0, keepdims=True) + 1e-9)
     B = chroma(S, nf, 35, 200)
@@ -231,3 +236,30 @@ def fit_tempo(bpm: float, lo: float, hi: float) -> float:
     cands = [bpm / 2, bpm, bpm * 2, bpm * 2 / 3, bpm * 3 / 2]
     mid = (lo + hi) / 2
     return min(cands, key=lambda b: (0 if lo - 4 <= b <= hi + 4 else 1, abs(np.log2(b / mid))))
+
+
+def aggregate_reference(analyses: list[dict]) -> dict | None:
+    """Gộp phân tích của NHIỀU đoạn nhạc thành một "hồ sơ phong cách": tempo trung vị (đã quy về cùng quãng tám),
+    giọng bỏ phiếu theo độ tin cậy, năng lượng / độ dồn / độ sáng trung bình."""
+    A = [a for a in analyses if a and a.get("bpm")]
+    if not A:
+        return None
+    if len(A) == 1:
+        return A[0]
+    ref = float(np.median([a["bpm"] for a in A]))
+    folded = [min((a["bpm"] * m for m in (0.5, 1, 2)), key=lambda b: abs(np.log2(b / ref))) for a in A]
+    votes: dict[tuple, float] = {}
+    for a in A:
+        k = a.get("key") or {}
+        if "tonic" in k:
+            t = (k["tonic"], k["mode"])
+            votes[t] = votes.get(t, 0) + 0.2 + a.get("key_confidence", 0)
+    tonic, mode = max(votes, key=votes.get) if votes else (9, "minor")
+    out = dict(A[0])
+    out.update({"bpm": round(float(np.median(folded)), 2), "key": Key(tonic, mode).to_dict(),
+                "key_confidence": round(float(max(votes.values()) / sum(votes.values())), 2) if votes else 0,
+                "energy": round(float(np.mean([a.get("energy", 0.5) for a in A])), 2),
+                "percussive": round(float(np.mean([a.get("percussive", 0.3) for a in A])), 2),
+                "brightness": round(float(np.mean([a.get("brightness", 2000) for a in A])), 1),
+                "n_clips": len(A)})
+    return out

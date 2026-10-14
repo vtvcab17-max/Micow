@@ -9,6 +9,9 @@ Chuỗi đầu vào (một transformer chỉ-giải-mã duy nhất, giống Bark
 * "Delay pattern" (MusicGen): sổ mã k trễ k bước → sinh K sổ mã song song mà vẫn tự hồi quy giữa chúng.
 * Classifier-free guidance: huấn luyện bỏ điều kiện 10%, khi sinh trộn logit có/không điều kiện.
 * Sinh dài: cửa sổ trượt + ép token đã biết (dùng cho cả "nối dài clip" kiểu Suno Extend).
+* v2 – đường cấu trúc: mỗi khung được cộng thêm embedding loại đoạn (verse/chorus/drop…) + mức năng lượng
+  lấy từ bản thiết kế của planner (khi sinh) hoặc nhãn Micow Ear (khi huấn luyện) → mô hình biết khi nào
+  phải vào hook, khi nào là drop; dùng cho nhạc CapCut "hook ngay giây đầu, drop đúng giây X".
 """
 from __future__ import annotations
 
@@ -39,6 +42,9 @@ class LMConfig:
     rope_base: float = 10000.0
     frame_rate: float = 50.0
     sample_rate: int = 32000
+    struct_cond: bool = True    # v2: "đường cấu trúc" – loại đoạn + năng lượng cho TỪNG khung (từ planner / Micow Ear)
+    n_struct: int = 11          # 10 loại đoạn (intro…outro) + "không rõ"
+    energy_bins: int = 8
 
     @classmethod
     def preset(cls, name: str, **kw) -> "LMConfig":
@@ -123,6 +129,9 @@ class MicowLM(nn.Module):
         self.text_emb = nn.Embedding(VOCAB, c.dim)
         self.code_emb = nn.ModuleList([nn.Embedding(c.card + 2, c.dim) for _ in range(c.n_q)])
         self.type_emb = nn.Embedding(3, c.dim)  # 0 text, 1 ref, 2 audio
+        if c.struct_cond:
+            self.struct_emb = nn.Embedding(c.n_struct, c.dim)
+            self.energy_emb = nn.Embedding(c.energy_bins, c.dim)
         self.blocks = nn.ModuleList([Block(c) for _ in range(c.layers)])
         self.norm = RMSNorm(c.dim)
         self.heads = nn.ModuleList([nn.Linear(c.dim, c.card, bias=False) for _ in range(c.n_q)])
@@ -136,10 +145,25 @@ class MicowLM(nn.Module):
     def n_params(self) -> int:
         return sum(p.numel() for p in self.parameters())
 
-    def embed_frames(self, codes: torch.Tensor, typ: int) -> torch.Tensor:
-        """codes (B, K, L) → (B, L, D)"""
+    def embed_frames(self, codes: torch.Tensor, typ: int, struct: torch.Tensor | None = None,
+                     energy: torch.Tensor | None = None) -> torch.Tensor:
+        """codes (B, K, L) → (B, L, D); struct/energy (B, L) là nhãn cấu trúc của khung tương ứng."""
         e = sum(self.code_emb[k](codes[:, k]) for k in range(codes.shape[1]))
-        return e + self.type_emb.weight[typ]
+        e = e + self.type_emb.weight[typ]
+        if self.c.struct_cond and struct is not None:
+            e = e + self.struct_emb(struct) + self.energy_emb(energy)
+        return e
+
+    def _struct_steps(self, struct, energy, S: int, B: int, dev):
+        """Kéo nhãn từng khung (B, T) ra độ dài chuỗi trễ S (bước s ↔ khung s của sổ mã 0)."""
+        if not self.c.struct_cond:
+            return None, None
+        if struct is None:
+            st = torch.full((B, S), self.c.n_struct - 1, dtype=torch.long, device=dev)
+            en = torch.zeros((B, S), dtype=torch.long, device=dev)
+            return st, en
+        idx = torch.clamp(torch.arange(S, device=dev), max=struct.shape[1] - 1)
+        return struct[:, idx].to(dev), energy[:, idx].to(dev)
 
     # ---------- dựng tiền tố (văn bản + clip tham chiếu) ----------
     def prefix(self, texts: list[list[int]], refs: list[torch.Tensor | None], device) -> tuple[torch.Tensor, torch.Tensor]:
@@ -179,8 +203,10 @@ class MicowLM(nn.Module):
         return self.norm(x)
 
     # ---------- huấn luyện ----------
-    def forward(self, texts: list[list[int]], codes: torch.Tensor, refs: list[torch.Tensor | None] | None = None):
-        """codes (B, K, T) – trả loss trung bình qua K sổ mã (và loss từng sổ mã)."""
+    def forward(self, texts: list[list[int]], codes: torch.Tensor, refs: list[torch.Tensor | None] | None = None,
+                struct: torch.Tensor | None = None, energy: torch.Tensor | None = None):
+        """codes (B, K, T) – trả loss trung bình qua K sổ mã (và loss từng sổ mã).
+        struct/energy (B, T): nhãn loại đoạn / năng lượng từng khung (tuỳ chọn)."""
         dev = codes.device
         B, K, T = codes.shape
         if self.training:
@@ -190,7 +216,10 @@ class MicowLM(nn.Module):
         pre, pmask = self.prefix(texts, refs, dev)
         d = delay(codes, self.PAD)                                         # (B, K, S)
         inp = torch.cat([torch.full((B, K, 1), self.BOS, device=dev, dtype=d.dtype), d[:, :, :-1]], 2)
-        x = torch.cat([pre, self.embed_frames(inp, 2)], 1)
+        if struct is not None and self.training and torch.rand(()) < self.c.cond_drop:
+            struct = energy = None  # thỉnh thoảng bỏ đường cấu trúc để mô hình vẫn sinh được khi không có kế hoạch
+        st, en = self._struct_steps(struct, energy, inp.shape[2], B, dev)
+        x = torch.cat([pre, self.embed_frames(inp, 2, st, en)], 1)
         valid = torch.cat([pmask, torch.ones(B, inp.shape[2], dtype=torch.bool, device=dev)], 1)
         h = self._run(x, valid)[:, pre.shape[1]:]
         losses = []
@@ -206,7 +235,8 @@ class MicowLM(nn.Module):
     @torch.no_grad()
     def generate(self, text: list[int], n_frames: int, ref: torch.Tensor | None = None,
                  prompt: torch.Tensor | None = None, cfg_scale: float = 3.0, temperature: float = 1.0,
-                 top_k: int = 250, top_p: float = 0.0, text_fn=None, progress=None, generator=None) -> torch.Tensor:
+                 top_k: int = 250, top_p: float = 0.0, text_fn=None, progress=None, generator=None,
+                 struct: torch.Tensor | None = None, energy: torch.Tensor | None = None) -> torch.Tensor:
         """Sinh (K, n_frames) token. prompt (K, Tp): khung đã biết ở đầu (nối dài clip).
         text_fn(start_frame) → token văn bản cho từng cửa sổ (để báo thời điểm trong bài)."""
         dev = next(self.parameters()).device
@@ -236,8 +266,17 @@ class MicowLM(nn.Module):
                 pre, pmask = self.prefix(texts, refs, dev)
                 Bn = pre.shape[0]
                 caches = [dict() for _ in self.blocks]
+                if struct is not None:
+                    ws = struct[start:win_end][None].expand(Bn, -1)
+                    we = energy[start:win_end][None].expand(Bn, -1)
+                else:
+                    ws = we = None
+                st_all, en_all = self._struct_steps(ws, we, S, Bn, dev)
                 inp = torch.cat([torch.full((K, 1), self.BOS, dtype=torch.long, device=dev), d[:, :s0]], 1)
-                x = torch.cat([pre, self.embed_frames(inp[None].expand(Bn, K, inp.shape[1]), 2)], 1)
+                sl = slice(0, inp.shape[1])
+                x = torch.cat([pre, self.embed_frames(inp[None].expand(Bn, K, inp.shape[1]), 2,
+                                                      None if st_all is None else st_all[:, sl],
+                                                      None if en_all is None else en_all[:, sl])], 1)
                 valid = torch.cat([pmask, torch.ones(Bn, inp.shape[1], dtype=torch.bool, device=dev)], 1)
                 h = self._run(x, valid, caches)[:, -1]
                 for s in range(s0, S):
@@ -254,7 +293,10 @@ class MicowLM(nn.Module):
                         progress(min(1.0, (start + max(0, s - K)) / n_frames))
                     if s == S - 1:
                         break
-                    x = self.embed_frames(nxt.view(1, K, 1).expand(Bn, K, 1), 2)
+                    sl = slice(s + 1, s + 2)
+                    x = self.embed_frames(nxt.view(1, K, 1).expand(Bn, K, 1), 2,
+                                          None if st_all is None else st_all[:, sl],
+                                          None if en_all is None else en_all[:, sl])
                     valid = torch.cat([valid, torch.ones(Bn, 1, dtype=torch.bool, device=dev)], 1)
                     h = self._run(x, valid, caches)[:, -1]
             if win_end >= n_frames:
@@ -286,6 +328,8 @@ def save_lm(model: MicowLM, path, extra: dict | None = None) -> None:
 
 def load_lm(path, device="cpu") -> tuple[MicowLM, dict]:
     ck = torch.load(path, map_location=device, weights_only=False)
-    m = MicowLM(LMConfig(**ck["config"]))
+    cfg = dict(ck["config"])
+    cfg.setdefault("struct_cond", False)  # checkpoint v1 (chưa có đường cấu trúc)
+    m = MicowLM(LMConfig(**cfg))
     m.load_state_dict(ck["state"])
     return m.to(device).eval(), ck

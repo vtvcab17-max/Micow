@@ -24,7 +24,7 @@ class DSPEngine(Engine):
         bp = blueprint_for(req, clips)
         if req.mode == "song" and not req.lyrics.strip():
             bp.notes.append("Không có lời: tạo bản không lời theo cấu trúc bài hát")
-        use_clips = [c for c in clips if c.get("use") in ("loop", "chop", "kit")]
+        use_clips = [c for c in clips if c.get("use") in ("loop", "chop", "kit", "hook")]
 
         def prog(p, m):
             if job.cancel.is_set():
@@ -38,7 +38,14 @@ class DSPEngine(Engine):
                 "request": req.to_dict(), "bpm": bp.bpm, "key": bp.key.to_dict(), "genre": bp.style.genre,
                 "genre_name": bp.style.preset["name"], "stats": res.stats, "notes": bp.notes,
                 "sections": bp.to_dict()["sections"], "created": job.created}
+        if bp.mode == "capcut":
+            meta["capcut"] = {"duration": bp.target_duration, "peak_at": req.peak_at, "loop": bp.loop,
+                              "mode": "generated"}
         job.update(0.93, "Lưu tệp (WAV, stem, MIDI, LRC)")
-        return save_result(folder, meta, res.mix, res.stems, lrc,
-                           lambda p: write_midi(p, bp.bpm, midi_tracks(res, bp), bp.key.tonic, bp.key.is_minor),
-                           bp.to_dict())
+        out = save_result(folder, meta, res.mix, res.stems, lrc,
+                          lambda p: write_midi(p, bp.bpm, midi_tracks(res, bp), bp.key.tonic, bp.key.is_minor),
+                          bp.to_dict())
+        if bp.mode == "capcut":
+            from ..ear.capcut import blueprint_markers, finalize
+            out = finalize(folder, out, bp.title, blueprint_markers(bp))
+        return out

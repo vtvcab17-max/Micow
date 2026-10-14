@@ -8,6 +8,6 @@ Kiến trúc ba tầng (xem docs/KIEN_TRUC.md):
   Planner (micow.planner)  ->  Engine sinh âm thanh (micow.engines)  ->  Hậu kỳ (micow.dsp.master)
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 APP_NAME = "Micow"
 DEFAULT_PORT = 5690

@@ -18,7 +18,8 @@ HTML/CSS/JS thuần trong `web/` (không có bước build), phong cách thiết
 |---|---|
 | Vì sao kiến trúc như vậy (suy ngược Suno) | `docs/SUNO_SUY_NGUOC.md` |
 | Kiến trúc, engine, REST API, thư mục dữ liệu | `docs/KIEN_TRUC.md` |
-| Huấn luyện Micow-LM | `docs/HUAN_LUYEN.md` |
+| Huấn luyện Micow-LM, Micow Ear | `docs/HUAN_LUYEN.md` |
+| So sánh với Suno v6, số đo | `docs/SO_SANH_SUNO_V6.md`, `docs/BENCHMARK.md` (`micow bench`) |
 
 ## Working Rules
 - **Một tính năng một lần**: chọn MỘT mục chưa `done` trong `feature_list.json`, đặt `in-progress`, làm xong mới sang mục khác.
@@ -62,6 +63,14 @@ CI: `.github/workflows/verify.yml` chạy `init.sh` cho mỗi lần đẩy và P
 - `hash()` của Python ngẫu nhiên theo tiến trình: seed tổng hợp âm thanh dùng `zlib.crc32`.
 - ACE-Step 1.5 cần Python 3.11–3.12 (uv tự lo), vLLM chỉ trên Linux + CUDA (nơi khác đặt `ACESTEP_LM_BACKEND=pt`);
   `lego`/`complete` chỉ chạy với model base (`acestep-v15-base`, tải bằng tuỳ chọn "model base").
+
+- Micow Ear: hi-hat/bass phách lẻ (house, vinahouse) làm bộ dò phách thuật toán bắt nhầm pha; luôn chọn pha bằng
+  kick + snare + đổi hợp âm trên tín hiệu đã lọc max ±2 khung (đỉnh flux chỉ rộng 1 khung).
+- Khung STFT của scipy (`boundary=None`) tính từ mép trái: thời điểm = khung/FPS + N_FFT/2/SR (`LAG`).
+- Đoạn ngắn / nhịp nửa tempo làm ô nhịp thô: thời điểm drop phải tinh chỉnh ở độ phân giải khung (`refine_drop`).
+- Đổi `micow/ear/features.py` hoặc `structure.py` (đặc trưng) thì phải huấn luyện lại (`micow train ear`), vì trọng số
+  gắn với đúng thứ tự/ý nghĩa đặc trưng (`FEAT_NAMES`, 19 đặc trưng khung).
+- Không đưa "điểm" tự chấm vào tài liệu: mọi so sánh phải có số đo `micow bench` hoặc nguồn công khai.
 
 ## End of Session
 1. `./init.sh` xanh (hoặc ghi rõ chỗ đỏ và lý do).

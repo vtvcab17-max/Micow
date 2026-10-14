@@ -19,7 +19,7 @@ import torch
 import torch.nn.functional as F
 
 from .codec import CodecConfig, MicowCodec, STFTDiscriminator, load_codec, stft_loss
-from .data import load_mono, lyrics_in_window, read_manifest
+from .data import load_mono, lyrics_in_window, read_manifest, section_track
 from .lm import LMConfig, MicowLM, save_lm
 from .tokenizer import encode_text, meta_string
 
@@ -167,7 +167,7 @@ def train_lm(tokens: str, out: str, preset: str = "small", steps: int = 200_000,
     t0 = time.time()
     model.train()
     for step in range(step0, steps):
-        texts, codes, refs = [], [], []
+        texts, codes, refs, sts, ens = [], [], [], [], []
         Tb = min(W, min(d.shape[1] for d in data))
         for _ in range(batch):
             j = random.randrange(len(data))
@@ -180,6 +180,9 @@ def train_lm(tokens: str, out: str, preset: str = "small", steps: int = 200_000,
             meta_s = meta_string(it.get("bpm"), it.get("key"), T / fr, t_start)
             texts.append(encode_text(it.get("style", ""), lyr, meta_s, cfg.max_text))
             codes.append(crop)
+            tr = section_track(it.get("sections"), Tb, fr, t_start)
+            sts.append(tr[0] if tr else None)
+            ens.append(tr[1] if tr else None)
             # clip tham chiếu: lấy từ phần KHÁC của cùng bài để học "phong cách" chứ không chép nội dung
             R = min(cfg.max_ref, T // 3)
             if R > 10 and T > Tb + R:
@@ -190,8 +193,12 @@ def train_lm(tokens: str, out: str, preset: str = "small", steps: int = 200_000,
         codes_t = torch.stack(codes).to(dev)
         for g in opt.param_groups:
             g["lr"] = _lr(step, steps, lr, warm=min(2000, steps // 10 + 1))
+        st = en = None
+        if cfg.struct_cond and all(x is not None for x in sts):
+            st = torch.tensor(np.stack(sts), device=dev)
+            en = torch.tensor(np.stack(ens), device=dev)
         with torch.autocast("cuda", dtype=torch.bfloat16, enabled=use_amp):
-            loss, parts = model(texts, codes_t, refs)
+            loss, parts = model(texts, codes_t, refs, st, en)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)

@@ -55,7 +55,7 @@ class JobQueue:
             if len(self.jobs) > 200:
                 for k in sorted(self.jobs, key=lambda k: self.jobs[k].created)[:-200]:
                     self.jobs.pop(k, None)
-        pool = self.gen_pool if kind in ("generate", "train") else self.aux_pool
+        pool = self.gen_pool if kind in ("generate", "train", "listen") else self.aux_pool
 
         def run():
             if job.cancel.is_set():

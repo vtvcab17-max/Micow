@@ -65,6 +65,21 @@ class TheoryStyle(unittest.TestCase):
         self.assertIn("sad", s.moods)
         self.assertEqual(parse_style("nhạc sàn bay phòng").genre, "vinahouse")
         self.assertEqual(parse_style("trap 808 tối").genre, "trap")
+        self.assertEqual(parse_style("UK drill tối, 808 trượt").genre, "drill")
+        self.assertEqual(parse_style("vinahouse remix").genre, "vinahouse")
+
+    def test_drill_pattern(self):
+        from micow.dsp.patterns import Arranger
+        bp = make_blueprint("beat", "drill", seed=3, duration=40)
+        self.assertEqual(bp.style.genre, "drill")
+        arr = Arranger(bp, np.random.default_rng(3))
+        arr.drums(); arr.bass()
+        b808 = [e for e in arr.events if e.inst == "808"]
+        self.assertTrue(b808 and any(e.extra.get("glide") for e in b808), "drill cần 808 trượt")
+        bar_s, step = bp.bar_seconds, 60.0 / bp.bpm / 4
+        snares = {round((e.t % bar_s) / step) for e in arr.events if e.inst == "snare"}
+        self.assertIn(8, snares)                       # snare phách 3 (nửa nhịp)
+        self.assertTrue(snares & {13, 14, 15})         # snare "trễ" kiểu drill
 
 
 class Lyrics(unittest.TestCase):
@@ -206,6 +221,74 @@ class Server(unittest.TestCase):
         self.assertTrue(any(it["id"] == job["id"] for it in lib))
         z = self.call(f"/api/library/{job['id']}/zip")
         self.assertTrue(z[:2] == b"PK")
+        # Micow Ear nghe + cắt CapCut qua API
+        lj = self.call("/api/ear/listen", {"ids": [up["id"]]})
+        cj = self.call("/api/capcut", {"id": up["id"], "duration": 8, "mode": "hook"})
+        for jid in (lj["id"], cj["id"]):
+            for _ in range(240):
+                j = self.call(f"/api/jobs/{jid}")
+                if j["status"] in ("done", "error"):
+                    break
+                time.sleep(0.5)
+            self.assertEqual(j["status"], "done", j.get("error"))
+        self.assertIn("markers", j["result"]["files"])
+        self.assertEqual(j["result"]["duration"], 8.0)
+        bravin = self.call(f"/files/{cj['id']}/capcut.bravin.json")
+        self.assertEqual(bravin["format"], "bravin-project")
+
+
+class EarCapCut(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.bp = make_blueprint("song", "vpop vui", LYRICS, seed=11)
+        cls.mix = render(cls.bp).mix
+
+    def test_ear_finds_hook_in_chorus(self):
+        from micow.ear import listen
+        r = listen(self.mix, SR)
+        bs = self.bp.bar_seconds
+        chorus = [(s.start_bar * bs, (s.start_bar + s.bars) * bs) for s in self.bp.sections if s.kind == "chorus"]
+        h = r["hook"]
+        ov = sum(max(0, min(h["end"], b) - max(h["start"], a)) for a, b in chorus) / (h["end"] - h["start"])
+        self.assertGreaterEqual(ov, 0.5, (h, chorus))
+        self.assertTrue(r["sections"] and r["peak"])
+        true_down = np.arange(self.bp.total_bars + 1) * bs
+        self.assertLess(min(abs(true_down - h["start"])), 0.08)
+
+    def test_capcut_generate_exact_and_drop_on_time(self):
+        from micow.ear import listen
+        bp = make_blueprint("capcut", "vinahouse", "", seed=3, duration=20, peak_at=8.0, loop=True)
+        r = render(bp)
+        self.assertEqual(len(r.mix), int(20 * SR))
+        drop = next(s.start_bar * bp.bar_seconds for s in bp.sections if s.kind == "drop")
+        self.assertLess(abs(drop - 8.0), 1e-6)
+        heard = listen(r.mix, SR)["peak"]["start"]
+        self.assertLess(abs(heard - 8.0), 0.3)
+        self.assertLess(abs(master.lufs(r.mix) + 14), 1.0)
+
+    def test_cut_exact_length_and_peak_at(self):
+        from micow.ear import listen
+        from micow.ear.capcut import markers, plan_cut, render_cut
+        ear = listen(self.mix, SR)
+        total = len(self.mix) / SR
+        plan = plan_cut(ear, total, 15.0, "peak_at", 6.0)
+        y = render_cut(self.mix, plan)
+        self.assertEqual(len(y), int(15 * SR))
+        self.assertAlmostEqual(plan["anchor"] - plan["start"], 6.0, places=3)
+        ms = markers(plan, ear)
+        self.assertTrue(any(m["type"] == "drop" and abs(m["time"] - 6.0) < 1e-3 for m in ms))
+        plan2 = plan_cut(ear, total, 60.0, "hook", None)  # dài hơn phần còn lại → lặp hook
+        self.assertEqual(len(render_cut(self.mix, plan2)), int(60 * SR))
+
+    def test_aggregate_many_clips(self):
+        from micow.analysis import aggregate_reference
+        a = [{"bpm": 70, "key": Key(9, "minor").to_dict(), "key_confidence": 0.5, "energy": 0.4},
+             {"bpm": 141, "key": Key(9, "minor").to_dict(), "key_confidence": 0.6, "energy": 0.8},
+             {"bpm": 72, "key": Key(0, "major").to_dict(), "key_confidence": 0.1, "energy": 0.6}]
+        r = aggregate_reference(a)
+        self.assertEqual(r["key"]["name"], "A minor")
+        self.assertLess(abs(r["bpm"] - 70.5), 1.5)
+        self.assertEqual(r["n_clips"], 3)
 
 
 try:
@@ -247,7 +330,11 @@ class Model(unittest.TestCase):
                 v = torch.cat([v, torch.ones(2, 1, dtype=torch.bool)], 1)
                 hs.append(lm._run(lm.embed_frames(inp[:, :, s:s + 1], 2), v, caches)[:, -1])
             self.assertLess(float((full - torch.stack(hs, 1)).abs().max()), 1e-4)
-        out = lm.generate(encode_text("x"), 260, prompt=codes[0][:, :10], top_k=10)
+        loss2, _ = lm([encode_text("x")], codes, None, torch.randint(0, 10, (1, codes.shape[2])),
+                      torch.randint(0, 8, (1, codes.shape[2])))
+        self.assertTrue(torch.isfinite(loss2))
+        out = lm.generate(encode_text("x"), 260, prompt=codes[0][:, :10], top_k=10,
+                          struct=torch.randint(0, 10, (260,)), energy=torch.randint(0, 8, (260,)))
         self.assertEqual(out.shape, (cc.n_q, 260))
         self.assertTrue(bool((out >= 0).all()))
         self.assertTrue(torch.equal(out[:, :10], codes[0][:, :10]))

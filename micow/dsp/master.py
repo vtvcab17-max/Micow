@@ -93,7 +93,7 @@ def balance(stems: dict[str, np.ndarray], genre: str = "") -> dict[str, np.ndarr
             out[name] = x
             continue
         tgt = STEM_LEVEL.get(name, -20.0)
-        if genre in ("trap", "edm", "vinahouse", "house") and name == "bass":
+        if genre in ("trap", "drill", "edm", "vinahouse", "house") and name == "bass":
             tgt += 1.5
         if genre in ("ballad", "bolero", "cinematic") and name == "drums":
             tgt -= 3.0

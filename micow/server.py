@@ -241,9 +241,28 @@ class Handler(BaseHTTPRequestHandler):
                     return self._err("Sai mã", 404)
                 return self._file(paths.uploads() / seg[1] / "clip.wav")
             m = uploads.get_upload(seg[1])
+            if m:
+                ear = paths.uploads() / seg[1] / "ear.json"
+                if ear.exists():
+                    m["ear"] = json.loads(ear.read_text(encoding="utf-8"))
             return self._json(m) if m else self._err("Không thấy clip", 404)
         if route == "generate" and method == "POST":
             return self._json(service.start_generate(self._jbody()).to_dict())
+        if route == "capcut" and method == "POST":
+            return self._json(service.start_cut(self._jbody()).to_dict())
+        if route == "ear/listen" and method == "POST":
+            ids = [i for i in (self._jbody().get("ids") or []) if re.fullmatch(r"[\w\-]+", str(i))]
+            return self._json(service.start_listen(ids).to_dict())
+        if route == "ear/label" and method == "POST":
+            from .ear import save_label
+            b = self._jbody()
+            if not uploads.get_upload(b.get("id", "")):
+                return self._err("Không thấy bài", 404)
+            return self._json(save_label(b["id"], b["hook_start"], b["hook_end"], b.get("peak_start"), b.get("peak_end")))
+        if route == "ear/report":
+            from .ear.nn import WEIGHTS
+            rp = WEIGHTS / "report.json"
+            return self._json(json.loads(rp.read_text(encoding="utf-8")) if rp.exists() else {})
         if route == "jobs":
             return self._json(QUEUE.list())
         if seg[0] == "jobs" and len(seg) >= 2:

@@ -34,7 +34,8 @@ class MicowLMRunner:
     def generate(self, style: str, lyrics: str = "", bpm: int | None = None, key: str | None = None,
                  duration: float = 30.0, ref: np.ndarray | None = None, prompt: np.ndarray | None = None,
                  cfg_scale: float = 3.0, temperature: float = 1.0, top_k: int = 250, seed: int = 0,
-                 progress=None) -> np.ndarray:
+                 progress=None, plan: list[dict] | None = None) -> np.ndarray:
+        """plan: [{"kind", "start", "end", "energy"}] – bản thiết kế của planner làm đường cấu trúc (v2)."""
         g = torch.Generator(device="cpu").manual_seed(int(seed))
         torch.manual_seed(int(seed))
         n_frames = int(duration * self.fr)
@@ -45,7 +46,13 @@ class MicowLMRunner:
             return encode_text(style, lyrics, meta_string(bpm, key, duration, start_frame / self.fr), self.lm.c.max_text)
 
         gen = g if self.device == "cpu" else None
+        struct = energy = None
+        if plan and self.lm.c.struct_cond:
+            from .data import section_track
+            k, e = section_track(plan, n_frames, self.fr)
+            struct, energy = torch.from_numpy(k).to(self.device), torch.from_numpy(e).to(self.device)
         codes = self.lm.generate(text_fn(0), n_frames, ref=ref_codes, prompt=prompt_codes, cfg_scale=cfg_scale,
-                                 temperature=temperature, top_k=top_k, text_fn=text_fn, progress=progress, generator=gen)
+                                 temperature=temperature, top_k=top_k, text_fn=text_fn, progress=progress, generator=gen,
+                                 struct=struct, energy=energy)
         wav = self.codec.decode(codes[None].clamp(min=0))[0, 0].float().cpu().numpy()
         return wav[: int(duration * self.sr)]

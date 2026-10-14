@@ -35,7 +35,14 @@ GENRES: dict[str, dict] = {
                  progs=[["i", "VI", "III", "VII"], ["i", "iv", "VI", "V:maj"], ["i", "i", "VI", "VII"]],
                  drums="trap", bass="808", layers=["pad", "bell"], lead="pluck",
                  reverb=0.25, sidechain=0.0, half_time=True, caption="trap beat, heavy 808, rolling hi-hats, dark",
-                 kw=["trap", "808", "rap viet", "rapviet", "drill", "rap"]),
+                 kw=["trap", "808", "rap viet", "rapviet", "rap"]),
+    "drill": dict(name="Drill", desc="Drill (UK/NY/Việt): 808 trượt, hi-hat 3-3-2, snare lệch phách 3",
+                  bpm=(138, 146), mode="harmonic_minor", swing=0.0,
+                  progs=[["i", "VI", "iv", "V:maj"], ["i", "i", "VI", "V:maj"], ["i", "iv", "VI", "VII"]],
+                  drums="drill", bass="808", layers=["strings", "piano", "pad"], lead="bell",
+                  reverb=0.24, sidechain=0.0, half_time=True,
+                  caption="drill beat, sliding 808 glides, syncopated hi-hats, dark strings, half-time",
+                  kw=["drill", "uk drill", "ny drill", "drill viet", "drill vn", "808 truot", "808 slide"]),
     "boombap": dict(name="Boom Bap", desc="Hip hop cổ điển: trống mộc, swing, piano mẫu",
                     bpm=(84, 96), mode="minor", swing=0.18,
                     progs=[["i7", "iv7", "i7", "v7"], ["i", "VI", "iv", "v"], ["i7", "VII", "VI", "v7"]],
@@ -180,7 +187,7 @@ def parse_style(text: str = "", genre: str | None = None, bpm: int | None = None
             mode_override = eff.get("mode", mode_override)
             bpm_mul *= eff.get("bpm", 1.0)
             e += eff.get("energy", 0.0)
-    if gid in ("edm", "vinahouse", "trap"):
+    if gid in ("edm", "vinahouse", "trap", "drill"):
         e += 0.15
     if gid in ("ballad", "lofi", "bolero"):
         e -= 0.1

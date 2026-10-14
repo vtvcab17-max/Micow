@@ -3,6 +3,7 @@
 const FALLBACK_GENRES = [
   ["vpop", "V-Pop", "Pop Việt tươi sáng", [92, 112]], ["ballad", "Ballad", "Ballad chậm, piano + dây", [64, 80]],
   ["rnb", "R&B", "Hợp âm 7-9, groove lơi", [70, 95]], ["trap", "Trap", "808 dài, hi-hat cuộn", [130, 150]],
+  ["drill", "Drill", "808 trượt, hi-hat 3-3-2", [138, 146]],
   ["boombap", "Boom Bap", "Hip hop cổ điển", [84, 96]], ["lofi", "Lo-fi", "Chill, đĩa than", [70, 88]],
   ["house", "House", "4/4, bass nảy", [118, 126]], ["edm", "EDM", "Supersaw, drop", [124, 150]],
   ["vinahouse", "Vinahouse", "Nhạc sàn Việt", [132, 140]], ["bolero", "Bolero", "Guitar, sáo, trữ tình", [64, 76]],
@@ -16,6 +17,7 @@ const USE = {
   loop: ["Vòng lặp", "Cắt 2–4 ô nhịp đẹp nhất, khớp tempo + giọng, trải suốt bài"],
   chop: ["Cắt lát (chop)", "Cắt theo nhịp đánh rồi xếp lại thành pattern mới"],
   kit: ["Lấy tiếng trống", "Tách kick / snare / hat trong clip làm bộ trống"],
+  hook: ["Lấy hook (Micow Ear)", "Micow Ear tìm hook của clip rồi dùng đúng đoạn đó làm vòng lặp"],
   cover: ["Cover", "Giữ giai điệu / cấu trúc clip, đổi phong cách và lời (ACE-Step)"],
   complete: ["Làm đầy / nối dài", "Thêm nhạc cụ, giọng cho đoạn dang dở (ACE-Step base, Micow-LM)"],
 };
@@ -102,14 +104,15 @@ const App = {
   showOffline(force) { if (!this.online || force === true && !this.online) { $("#srvUrl").value = API.base; $("#offline").hidden = false; } else if (force) this.go("models"); },
 
   go(page, push = true) {
-    if (!["song", "beat", "library", "models"].includes(page)) page = "song";
+    if (!["song", "beat", "capcut", "library", "models"].includes(page)) page = "song";
     for (const p of $$(".page")) p.hidden = p.id !== "page-" + page;
     for (const b of $$("#nav button, #tabs button")) b.setAttribute("aria-current", b.dataset.page === page ? "page" : "false");
     if (push && location.hash !== "#" + page) history.replaceState(null, "", "#" + page);
     $("#main").scrollTop = 0;
     if (page === "library") this.loadLibrary();
     if (page === "models") this.renderModels();
-    document.title = { song: "Tạo bài hát", beat: "Tạo beat", library: "Thư viện", models: "Mô hình" }[page] + " · Micow";
+    document.title = { song: "Tạo bài hát", beat: "Tạo beat", capcut: "Nhạc CapCut", library: "Thư viện", models: "Mô hình" }[page] + " · Micow";
+    if (page === "capcut" && window.CC && !CC.songs.length) CC.restore();
   },
 
   // =============================== STUDIO (bài hát + beat) ===============================
@@ -283,7 +286,7 @@ const App = {
     for (const c of S.clips) {
       if (c.busy) { list.append(el("div", { class: "clip" }, el("span", { class: "spin" }), el("div", {}, el("div", { class: "cn" }, c.name), el("small", { class: "muted" }, c.busy)), el("span"))); continue; }
       const a = c.analysis || {};
-      const uses = Object.keys(USE).filter((u) => eng === "micow-dsp" ? ["style", "loop", "chop", "kit"].includes(u) : eng === "micow-lm" ? ["style", "complete"].includes(u) : true);
+      const uses = Object.keys(USE).filter((u) => eng === "micow-dsp" ? ["style", "loop", "chop", "kit", "hook"].includes(u) : eng === "micow-lm" ? ["style", "complete"].includes(u) : u !== "hook");
       if (!uses.includes(c.use)) c.use = uses[0];
       const sel = el("select", { title: USE[c.use][1], onchange: (e) => { c.use = e.target.value; sel.title = USE[c.use][1]; S.changed(); } },
         uses.map((u) => el("option", { value: u, selected: u === c.use }, USE[u][0])));
@@ -385,8 +388,8 @@ const App = {
       this.trackJob(sec, job);
     } catch (e) { toast(e.message, 5000); }
   },
-  trackJob(sec, job) {
-    const host = $("[data-jobs]", sec);
+  trackJob(sec, job) { this.trackJobHost($("[data-jobs]", sec), job); },
+  trackJobHost(host, job) {
     const card = el("div", { class: "job" }, el("div", { class: "jt" }, el("span", {}, "Đang tạo…"), el("button", { class: "ghost", style: "padding:4px 10px", onclick: () => API.post(`/api/jobs/${job.id}/cancel`) }, "Huỷ")),
       el("div", { class: "bar" }, el("i")), el("div", { class: "jm" }, job.message));
     host.prepend(card);
@@ -415,7 +418,8 @@ const App = {
 
   // =============================== BÀI / THƯ VIỆN ===============================
   metaLine(it) {
-    return [it.genre_name, it.bpm ? `${Math.round(it.bpm)} BPM` : null, it.key && it.key.name_vi, fmtTime(it.duration), it.engine_name].filter(Boolean).join(" · ");
+    const cc = it.mode === "capcut" ? "CapCut" + (it.capcut && it.capcut.peak_at != null ? ` · drop ${it.capcut.peak_at}s` : "") : null;
+    return [cc || it.genre_name, it.bpm ? `${Math.round(it.bpm)} BPM` : null, it.key && it.key.name_vi, fmtTime(it.duration), it.engine_name].filter(Boolean).join(" · ");
   },
   trackCard(it) {
     const cv = el("canvas");
@@ -438,6 +442,8 @@ const App = {
     if (f.mp3) items.push({ label: "MP3 256 kbps", icon: "download", href: API.file(it.id, f.mp3, slug + ".mp3"), download: "" });
     if (f.midi) items.push({ label: "MIDI (kèm lời)", hint: "DAW", icon: "note", href: API.file(it.id, f.midi, slug + ".mid"), download: "" });
     if (f.lrc) items.push({ label: "Lời .lrc", hint: "Bravin", icon: "edit", href: API.file(it.id, f.lrc, slug + ".lrc"), download: "" });
+    if (f.markers) items.push({ label: "Mốc nhịp .csv", hint: "cắt cảnh theo nhịp", icon: "target", href: API.file(it.id, f.markers, slug + "_moc_nhip.csv"), download: "" });
+    if (f.bravin) items.push({ label: "Dự án Bravin 9:16", hint: ".bravin.json", icon: "link", href: API.file(it.id, f.bravin, slug + ".bravin.json"), download: "" });
     items.push({ label: f.stems ? "Trọn gói + stem (.zip)" : "Trọn gói (.zip)", icon: "download", href: API.url(`/api/library/${it.id}/zip`), download: "" });
     menu(anchor, items);
   },
@@ -446,6 +452,7 @@ const App = {
     menu(anchor, [
       { label: "Tạo lại (seed mới)", icon: "redo", onclick: async () => {
         const mode = it.mode === "beat" ? "beat" : "song", sec = $(`#page-${mode}`);
+        if (it.mode === "capcut") { try { this.go("capcut"); this.trackJobHost($("#ccJobs"), await API.post(it.engine === "micow-ear" ? "/api/capcut" : "/api/generate", Object.assign({}, req, { seed: null }))); } catch (e) { toast(e.message); } return; }
         const r = Object.assign({}, req, { seed: null });
         try { this.go(mode); this.trackJob(sec, await API.post("/api/generate", r)); } catch (e) { toast(e.message); }
       } },

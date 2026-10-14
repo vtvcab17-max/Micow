@@ -65,10 +65,13 @@ def best_loop(x: np.ndarray, a: dict, bars: int = 2) -> tuple[np.ndarray, float,
     return x[best:best + L].copy(), bpm, best / SR
 
 
-def make_loop_layer(x_st: np.ndarray, a: dict, bp: Blueprint) -> np.ndarray:
+def make_loop_layer(x_st: np.ndarray, a: dict, bp: Blueprint, preset_loop: bool = False) -> np.ndarray:
     """Vòng lặp đã khớp tempo + giọng, trải theo các đoạn có năng lượng; intro lọc tối (filter-in)."""
     mono = x_st.mean(axis=1)
-    loop, src_bpm, start = best_loop(mono, a, bars=2 if bp.bpm < 120 else 4)
+    if preset_loop:
+        loop, src_bpm, start = mono.copy(), a.get("bpm") or 0.0, 0.0
+    else:
+        loop, src_bpm, start = best_loop(mono, a, bars=2 if bp.bpm < 120 else 4)
     if not len(loop):
         return np.zeros((int(bp.duration * SR), 2), np.float32)
     if src_bpm:
@@ -177,3 +180,17 @@ def make_chop_layer(x_st: np.ndarray, a: dict, bp: Blueprint, seed: int = 0) -> 
                 jj = min(total, i + len(seg))
                 out[i:jj] += seg[: jj - i] * (0.6 + 0.4 * sec.energy)
     return np.stack([out, out], axis=1)
+
+
+def make_hook_layer(x_st: np.ndarray, ear: dict, bp: Blueprint) -> np.ndarray:
+    """Lấy đúng đoạn HOOK mà Micow Ear tìm được trong clip làm vòng lặp (khớp tempo + giọng của bài mới)."""
+    h = (ear or {}).get("hook")
+    if not h:
+        return np.zeros((int(bp.duration * SR) + SR, 2), np.float32)
+    a = {"bpm": ear.get("bpm"), "beat_offset": 0.0, "kind": "music", "key": ear.get("key"),
+         "onsets": []}
+    seg = x_st[int(h["start"] * SR): int(h["end"] * SR)]
+    bars = max(1, int(h.get("bars", 4)))
+    use = min(bars, 4 if bp.bpm < 120 else 8)
+    seg = seg[: int(len(seg) * use / bars)]
+    return make_loop_layer(seg, dict(a, beat_offset=0.0), bp, preset_loop=True)
